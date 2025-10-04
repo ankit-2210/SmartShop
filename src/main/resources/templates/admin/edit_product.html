@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+</head>
+<body>
+<section>
+    <div class="container-fluid p-5 mt-5 ">
+        <div class="d-flex justify-content-center align-items-center">
+            <div class="col-md-6">
+
+                <div class="card card-sh p-4">
+
+                    <div class="position-relative mb-4">
+                        <h3 class="text-center m-0">Edit Product</h3>
+                        <a th:href="@{/admin/products}"
+                           class="btn btn-sm btn-outline-primary position-absolute top-50 end-0 translate-middle-y">
+                            ← Back
+                        </a>
+                    </div>
+
+                    <div th:if="${session.message}" class="container">
+                        <div th:classappend="' text-' + ${session.message.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.message.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionMessage()}"></th:block>
+                    </div>
+
+
+                    <!-- Form Binding -->
+                    <form th:action="@{/admin/updateProduct}" th:object="${product}" method="post"
+                          enctype="multipart/form-data">
+
+                        <!-- Hidden ID field -->
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <!-- Product Name -->
+                        <div class="mb-3">
+                            <label class="form-label" for="name">Product Name</label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}"
+                                   placeholder="Enter product name" required/>
+                        </div>
+
+                        <!-- Product Title -->
+                        <div class="mb-3">
+                            <label class="form-label" for="title">Product Title</label>
+                            <input type="text" class="form-control" id="title" th:field="*{title}"
+                                   placeholder="Enter product title" required/>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            <label class="form-label" for="price">Price (Rs.)</label>
+                            <input type="number" step="0.01" class="form-control" id="price" th:field="*{price}"
+                                   placeholder="Enter price" required/>
+                        </div>
+
+                        <!-- Discount -->
+                        <div class="mb-3">
+                            <label class="form-label" for="discount">Discount</label>
+                            <input type="number" step="0.01" class="form-control" id="discount" th:field="*{discount}"
+                                   placeholder="Enter discount" required/>
+                        </div>
+
+                        <!-- Discount Price -->
+                        <div class="mb-3">
+                            <label class="form-label" for="discountPrice">Discount Price</label>
+                            <input type="number" step="0.01" class="form-control" id="discountPrice"
+                                   th:field="*{discountPrice}" placeholder="Enter discount price" readonly/>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select th:field="*{category}" id="categorySelect" name="category" class="form-select"
+                                    required>
+                                <option value="" disabled selected>Select category</option>
+                                <option th:each="c : ${uniqueCategories}" th:value="${c}" th:text="${c}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Sub Category</label>
+                            <select th:field="*{subcategory}" id="subcategorySelect" name="subcategory"
+                                    class="form-select" required>
+                                <option value="" disabled selected>Select sub-category</option>
+                                <option th:each="cat : ${categories}"
+                                        th:if="${cat.isActive == true}"
+                                        th:data-category="${cat.categoryName}"
+                                        th:value="${cat.subcategoryName}"
+                                        th:text="${cat.subcategoryName}">
+                                </option>
+                            </select>
+                        </div>
+
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2">Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" th:field="*{isActive}" value="true"
+                                       id="active"/>
+                                <label class="form-check-label" for="active">Active</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" th:field="*{isActive}" value="false"
+                                       id="inactive"/>
+                                <label class="form-check-label" for="inactive">Inactive</label>
+                            </div>
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="mb-3">
+                            <label class="form-label" for="stock">Stock Quantity</label>
+                            <input type="number" class="form-control" id="stock" th:field="*{stock}"
+                                   placeholder="Enter available stock" required/>
+                        </div>
+
+                        <!-- Product Colors -->
+                        <div class="mb-3">
+                            <label class="form-label">Product Colors</label>
+                            <input type="text" class="form-control" id="colors" name="colors"
+                                   placeholder="Enter colors with hex codes, e.g. Red:#FF0000, Green:#00FF00" />
+                            <small>Format: Red:#FF0000, Green:#00FF00</small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label" for="description">Description</label>
+                            <textarea class="form-control" id="description" th:field="*{description}" rows="3"
+                                      placeholder="Enter product description" required></textarea>
+                        </div>
+
+                        <!-- Image Upload -->
+                        <div class="mb-3">
+                            <label class="form-label">Upload Product Image</label>
+                            <input type="file" class="form-control" accept="image/*" name="file"/>
+                        </div>
+
+                        <!-- Show Current Image -->
+                        <div class="mb-3">
+                            <img th:src="@{'/img/product_img/' + ${product.image}}" width="100" height="100"
+                                 class="rounded-circle"/>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-center mx-auto">
+                            <button type="submit" class="btn btn-warning px-4">Update Product</button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

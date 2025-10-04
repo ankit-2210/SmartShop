@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Reset Passowrd</title>
+</head>
+<body>
+<section>
+    <section class="text-gray-600 body-font">
+        <form id="login-form" class="form" th:action="@{/resetPassword}"method="post">
+            <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
+
+                <div class="lg:w-2/5 md:w-4/5 bg-gray-100 rounded-lg p-8 flex flex-col md:mx-auto w-full mt-10 md:mt-0">
+                    <h2 class="text-gray-900 text-lg font-medium title-font mb-4 text-center shadow p-3 bg-body-tertiary rounded">Reset Password</h2>
+
+                    <div th:if="${session.resetMessage}" class="container">
+                        <div th:classappend="' text-' + ${session.resetMessage.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.resetMessage.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('resetMessage')}"></th:block>
+                    </div>
+
+                    <div class="relative mb-4">
+                        <label for="password" class="leading-7 text-sm text-gray-600 ml-2">New Password
+                        </label> <input type="password" id="password" name="password"
+                                        class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password">
+                    </div>
+                    <div class="relative mb-4">
+                        <label for="password" class="leading-7 text-sm text-gray-600 ml-2">Confirm Password
+                        </label> <input type="cpassword" id="cpassword" name="cpassword"
+                                        class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password">
+                    </div>
+
+                    <input type="hidden" th:value="${token}" name="token" />
+                    <div class="container relative mb-1 text-center ">
+                        <button class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-3">Reset</button>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </form>
+    </section>
+
+
+
+
+</section>
+
+</body>
+</html>

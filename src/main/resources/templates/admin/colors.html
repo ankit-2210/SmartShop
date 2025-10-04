@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Colors</title>
+</head>
+<body>
+
+<section>
+    <div class="container-fluid p-5 mt-5">
+        <div class="row">
+            <!-- Add New Color -->
+            <div class="col-md-4">
+                <div class="card card-sh p-4">
+                    <div class="text-center mb-3 card-header">
+                        <h3 class="text-center mx-auto">Add New Color</h3>
+                    </div>
+
+                    <div th:if="${session.colorMessage}" class="container">
+                        <div th:classappend="' text-' + ${session.colorMessage.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.colorMessage.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('colorMessage')}"></th:block>
+                    </div>
+
+                    <form id="colorForm" method="post" enctype="multipart/form-data">
+                        <!-- Color Name -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2" for="colorName">Color Name</label>
+                            <input type="text" class="form-control" id="colorName" name="colorName"
+                                   placeholder="Enter color name" required />
+                        </div>
+
+                        <!-- Hex Code -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2" for="hexCode">Hex Code</label>
+                            <input type="text" class="form-control" id="hexCode" name="hexCode"
+                                   placeholder="#FFFFFF" required />
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2">Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" id="active" value="true" checked>
+                                <label class="form-check-label" for="active">Active</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" id="inactive" value="false">
+                                <label class="form-check-label" for="inactive">Inactive</label>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-center mx-auto mt-3">
+                            <button type="button" class="btn btn-success px-4" onclick="addColor()">Add Color</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Show Colors -->
+            <div class="col-md-8">
+                <div class="card card-sh p-4">
+                    <div class="text-center card-header">
+                        <h3 class=" text-center mx-auto">Color Details</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center">SL No.</th>
+                                <th class="text-center">Color Name</th>
+                                <th class="text-center">Hex Code</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Preview</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="clr, colorStat : ${colors}">
+                                <th class="text-center" th:text="${colorStat.index+1}"></th>
+                                <td class="text-center" th:text="${clr.colorName}"></td>
+                                <td class="text-center" th:text="${clr.hexCode}"></td>
+                                <td th:text="${clr.isActive} ? 'Active' : 'Inactive'"
+                                    th:classappend="${clr.isActive} ? 'text-success' : 'text-danger'"
+                                    class="text-center"></td>
+                                <td class="text-center">
+                                    <div th:style="'width:40px;height:20px;background-color:' + ${clr.hexCode}"></div>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-primary btn-sm"
+                                            th:attr="onclick=|editColor(${clr.id})|">Edit</button>
+                                    <button class="btn btn-danger btn-sm"
+                                            th:attr="onclick=|deleteColor(${clr.id})|">Delete</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- If no colors -->
+                        <div class="text-center my-5" th:if="${#lists.isEmpty(colors)}">
+                            <div class="alert alert-info py-3" role="alert" style="border-radius: 0.5rem;">
+                                <i class="fa-solid fa-info-circle me-2"></i> No colors available
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav aria-label="Page navigation example" th:if="${!#lists.isEmpty(colors)}">
+                        <ul class="pagination">
+                            <li class="page-item" th:classappend="${isFirst}?'disabled':''">
+                                <a class="page-link" th:href="@{'/admin/colors?pageNo='+${pageNo-1}}">Previous</a>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                class="page-item" th:classappend="${pageNo+1==i}?'active':''">
+                                <a class="page-link" th:href="@{'/admin/colors?pageNo='+${i-1}}"><span th:text="${i}"></span></a></li>
+                            <li class="page-item" th:classappend="${isLast}?'disabled':''">
+                                <a class="page-link" th:href="@{'/admin/colors?pageNo='+${pageNo+1}}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ================= SIZE MANAGEMENT ================= -->
+        <div class="row mt-5">
+            <!-- Add New Size -->
+            <div class="col-md-4">
+                <div class="card card-sh p-4">
+                    <div class="text-center mb-3 card-header">
+                        <h3 class="text-center mx-auto">Add New Size</h3>
+                    </div>
+
+                    <div th:if="${session.sizeMessage}" class="container">
+                        <div th:classappend="' text-' + ${session.sizeMessage.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.sizeMessage.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('sizeMessage')}"></th:block>
+                    </div>
+
+                    <form id="sizeForm" method="post">
+                        <!-- Size Name -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2" for="sizeName">Size</label>
+                            <input type="text" class="form-control" id="sizeName" name="sizeName"
+                                   placeholder="Enter size (e.g., S, M, L, XL)" required />
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2">Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" value="true" checked>
+                                <label class="form-check-label">Active</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" value="false">
+                                <label class="form-check-label">Inactive</label>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-center mx-auto mt-3">
+                            <button type="button" class="btn btn-success px-4" onclick="addSize()">Add Size</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Show Sizes -->
+            <div class="col-md-8">
+                <div class="card card-sh p-4">
+                    <div class="text-center card-header">
+                        <h3 class=" text-center mx-auto">Size Details</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center">SL No.</th>
+                                <th class="text-center">Size</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="sz, sizeStat : ${sizes}">
+                                <th class="text-center" th:text="${sizeStat.index+1}"></th>
+                                <td class="text-center" th:text="${sz.sizeName}"></td>
+                                <td th:text="${sz.isActive} ? 'Active' : 'Inactive'"
+                                    th:classappend="${sz.isActive} ? 'text-success' : 'text-danger'"
+                                    class="text-center"></td>
+                                <td class="text-center">
+                                    <button class="btn btn-primary btn-sm"
+                                            th:attr="onclick=|editSize(${sz.id})|">Edit</button>
+                                    <button class="btn btn-danger btn-sm"
+                                            th:attr="onclick=|deleteSize(${sz.id})|">Delete</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- If no sizes -->
+                        <div class="text-center my-5" th:if="${#lists.isEmpty(sizes)}">
+                            <div class="alert alert-info py-3" role="alert" style="border-radius: 0.5rem;">
+                                <i class="fa-solid fa-info-circle me-2"></i> No sizes available
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav aria-label="Page navigation example" th:if="${!#lists.isEmpty(sizes)}">
+                        <ul class="pagination">
+                            <li class="page-item" th:classappend="${isFirst}?'disabled':''">
+                                <a class="page-link" th:href="@{'/admin/sizes?pageNo='+${pageNo-1}}">Previous</a>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                class="page-item" th:classappend="${pageNo+1==i}?'active':''">
+                                <a class="page-link" th:href="@{'/admin/sizes?pageNo='+${i-1}}"><span th:text="${i}"></span></a>
+                            </li>
+                            <li class="page-item" th:classappend="${isLast}?'disabled':''">
+                                <a class="page-link" th:href="@{'/admin/sizes?pageNo='+${pageNo+1}}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+</section>
+
+</body>
+</html>

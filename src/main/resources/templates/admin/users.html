@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+</head>
+<body>
+    <section>
+        <div class="container-fluid p-5 mt-5 ">
+            <div class="d-flex justify-content-center align-items-center" >
+                <div class="col-md-12">
+                    <div class="card card-sh p-4">
+
+                        <div class="position-relative mb-4 card-header">
+                            <h3 class="text-center m-0">Users</h3>
+                        </div>
+
+                        <div th:if="${session.userMessage}" class="container">
+                            <div th:classappend="' text-' + ${session.userMessage.type}"
+                                 class="alert text-center" role="alert">
+                                <p th:text="${session.userMessage.content}"></p>
+                            </div>
+                            <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('userMessage')}"></th:block>
+                        </div>
+
+
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="text-center" scope="col">SL No.</th>
+                                    <th class="text-center" scope="col">Profile-Image</th>
+                                    <th class="text-center" scope="col">Name</th>
+                                    <th class="text-center" scope="col">Email</th>
+                                    <th class="text-center" scope="col">Mobile No.</th>
+                                    <th class="text-center" scope="col">Address</th>
+                                    <th class="text-center" scope="col">Status</th>
+                                    <th class="text-center" scope="col">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="u, userStat : ${users}">
+                                    <th class="text-center" scope="row" th:text="${userStat.count}"></th>
+                                    <td class="text-center"><img class="rounded-circle text-center mx-auto" width="70px" height="50px" th:src="@{'/img/profile_img/'+${u.profileImage}}"/></td>
+                                    <td class="text-center" th:text="${u.username}"></td>
+                                    <td class="text-center" th:text="${u.email}"></td>
+                                    <td class="text-center" th:text="${u.mobileNumber}"></td>
+                                    <td class="text-center" th:text="|${u.address}, ${u.city}, ${u.state}, ${u.pincode}|"></td>
+                                    <td th:text="${u.enable} ? 'Active' : 'Not Active'"
+                                        th:classappend="${u.enable} ? 'text-success' : 'text-danger'"
+                                        class="text-center">
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="@{/admin/updateStatus(id=${u.id}, status=true)}" class="btn btn-primary btn-sm">Active</a>
+                                        <a th:href="@{/admin/updateStatus(id=${u.id}, status=false)}" class="btn btn-danger btn-sm">InActive</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+</body>
+</html>

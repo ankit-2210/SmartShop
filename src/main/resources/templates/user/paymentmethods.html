@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Payment Methods Page</title>
+</head>
+<body>
+<section>
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title light-background">
+            <div class="container d-lg-flex justify-content-between align-items-center">
+                <h1 class="mb-2 mb-lg-0">Account</h1>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="current">Account</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- Account Section -->
+        <section id="account" class="account section">
+
+            <div class="container">
+
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu d-lg-none mb-4">
+                    <button class="mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#profileMenu">
+                        <i class="bi bi-grid"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Profile Menu -->
+                    <div class="col-lg-3">
+                        <div th:replace="user/fragments/sidebar :: sidebar"></div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="col-lg-9">
+                        <div class="content-area">
+                            <div class="tab-content">
+
+                                <!-- Payment Methods Tab -->
+                                <div class="tab-pane fade show active" id="wallet">
+                                    <div class="section-header">
+                                        <h2>Payment Methods</h2>
+                                        <div class="header-actions">
+                                            <button type="button" class="btn-add-new" data-bs-toggle="modal" data-bs-target="#addCardModal">
+                                                <i class="bi bi-plus-lg"></i>
+                                                Add New Card
+                                            </button>
+                                        </div>
+
+                                        <!-- Add New Card Modal -->
+                                        <div class="modal fade" id="addCardModal" tabindex="-1" aria-labelledby="addCardModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                <div class="modal-content">
+
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="addCardModalLabel">Add New Card</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" ></button>
+                                                    </div>
+
+                                                    <div class="modal-body">
+                                                        <form id="addCardForm">
+                                                            <div class="row g-3">
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Card Holder Name</label>
+                                                                    <input type="text" name="cardHolder" class="form-control" placeholder="Enter Card Holder Name" required>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Card Number</label>
+                                                                    <input type="text" name="cardNumber" class="form-control" placeholder="Enter Card Number" required>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Expiry Date</label>
+                                                                    <input type="text" name="expiry" class="form-control" placeholder="MM/YYYY" required>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Card Type</label>
+                                                                    <select name="cardType" class="form-select">
+                                                                        <option value="Visa">Visa</option>
+                                                                        <option value="Mastercard">Mastercard</option>
+                                                                        <option value="Amex">Amex</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-check mt-3">
+                                                                <input class="form-check-input" type="checkbox" name="isDefault" id="isDefaultCard">
+                                                                <label class="form-check-label" for="isDefaultCard">Make this my default card</label>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-primary" onclick="saveNewCard()">Save Card</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+
+
+                                    <div class="payment-cards-grid">
+                                        <!-- Payment Card 1 -->
+                                        <div class="payment-card" th:id="'payment-card-' + ${card.id}" th:each="card : ${paymentCards}"
+                                             th:classappend="${card.isDefault} ? ' default' : ''">
+                                            <div class="card-header">
+                                                <i class="bi bi-credit-card"></i>
+                                                <div class="card-badges">
+                                                    <span class="default-badge" th:if="${card.isDefault}">Default</span>
+                                                    <span class="card-type" th:text="${card.cardType}">Visa</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="card-number" th:text="${card.cardNumber}">•••• •••• •••• 4589</div>
+                                                <div class="card-info">
+                                                    <span th:text="'Expires ' + ${card.expiry}">Expires 09/2026</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-actions">
+                                                <button type="button" class="btn-edit" data-bs-toggle="modal"
+                                                        th:attr="data-bs-target='#editPaymentCardModal-' + ${card.id}">
+                                                    <i class="bi bi-pencil"></i>
+                                                    Edit
+                                                </button>
+                                                <button type="button" class="btn-remove" th:onclick="'removeCard(' + ${card.id} + ')'">
+                                                    <i class="bi bi-trash"></i>
+                                                    Remove
+                                                </button>
+
+                                                <button type="button" class="btn-make-default" th:if="${!card.isDefault}"
+                                                        th:onclick="'makeDefaultCard(' + ${card.id} + ')'">
+                                                    Make Default
+                                                </button>
+                                            </div>
+
+                                            <!-- Edit Card Modal -->
+                                            <div class="modal fade" th:id="'editPaymentCardModal-' + ${card.id}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Card</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <form th:id="'editPaymentCardForm-' + ${card.id}">
+                                                                <input type="hidden" name="id" th:value="${card.id}">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Card Number</label>
+                                                                    <input type="text" name="cardNumber" class="form-control" th:value="${card.cardNumber}" required>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Card Holder</label>
+                                                                    <input type="text" name="cardHolder" class="form-control" th:value="${card.cardHolder}" required>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Card Type</label>
+                                                                    <select name="cardType" class="form-select">
+                                                                        <option value="Visa" th:selected="${card.cardType == 'Visa'}">Visa</option>
+                                                                        <option value="Mastercard" th:selected="${card.cardType == 'Mastercard'}">Mastercard</option>
+                                                                        <option value="Amex" th:selected="${card.cardType == 'Amex'}">Amex</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="row">
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <label class="form-label">Expiry Date</label>
+                                                                        <input type="text" name="expiry" class="form-control" th:value="${card.expiry}" required>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input" type="checkbox" name="isDefault"
+                                                                           th:checked="${card.isDefault}">
+                                                                    <label class="form-check-label">Set as Default</label>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="button" class="btn btn-primary" th:onclick="'updateCard(' + ${card.id} + ')'">Save</button>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section><!-- /Account Section -->
+
+    </main>
+
+</section>
+</body>
+</html>

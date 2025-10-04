@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Login</title>
+</head>
+<body>
+
+<section>
+    <section class="text-gray-600 body-font">
+        <form id="login-form" class="form" th:action="@{/login}" method="post">
+            <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
+
+                <div class="lg:w-2/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
+                    <img th:src="@{'img/ecom.png'}" class="d-block w-100" alt="...">
+                </div>
+
+                <div class="lg:w-3/6 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
+                    <h2 class="text-gray-900 text-lg font-medium title-font mb-5 text-center shadow p-3 bg-body-tertiary rounded">Sign In</h2>
+
+                    <div th:if="${param.error}" class="alert alert-danger text-center">
+                        <p th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}"></p>
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success text-center">
+                        <p>You have been logged out</p>
+                    </div>
+
+                    <div th:if="${param.change}" class="alert alert-success text-center">
+                        <p th:text="${param.change}"></p>
+                    </div>
+
+
+                    <div class="relative mb-4">
+                        <label for="username" class="leading-7 text-sm text-gray-600">Email</label>
+                        <input type="email" id="username" name="username"
+                               class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter your email">
+                    </div>
+                    <div class="relative mb-4">
+                        <label for="password" class="leading-7 text-sm text-gray-600">Password
+                        </label> <input type="password" id="password" name="password"
+                                        class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password">
+                    </div>
+
+                    <button
+                            class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-3">Submit</button>
+
+                    <div class="container relative mb-3 mt-3 text-center ">
+                        <a th:href="@{/forgot-password}" class="text-decoration-none text-blue-400">Forgot Password</a>
+                        <br> Don't have an account ? <a th:href="@{/register}" href="" class="text-blue-400"> Create one</a>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </section>
+
+</section>
+
+</body>
+</html>

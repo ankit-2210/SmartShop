@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+</head>
+<body>
+<section>
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title light-background">
+            <div class="container d-lg-flex justify-content-between align-items-center">
+                <h1 class="mb-2 mb-lg-0">Account</h1>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="current">Account</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- Account Section -->
+        <section id="account" class="account section">
+
+            <div class="container">
+
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu d-lg-none mb-4">
+                    <button class="mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#profileMenu">
+                        <i class="bi bi-grid"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Profile Menu -->
+                    <div class="col-lg-3">
+                        <div th:replace="user/fragments/sidebar :: sidebar"></div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="col-lg-9">
+                        <div class="content-area">
+                            <div class="tab-content">
+
+
+                                <!-- Settings Tab -->
+                                <div class="tab-pane fade show active" id="settings">
+                                    <div class="section-header">
+                                        <h2>Account Settings</h2>
+                                    </div>
+
+                                    <div class="settings-content">
+                                        <!-- Personal Information -->
+                                        <div class="settings-section">
+                                            <h3>Personal Information</h3>
+
+                                            <div th:if="${session.userProfileMessage}" class="container">
+                                                <div th:classappend="' text-' + ${session.userProfileMessage.type}"
+                                                     class="alert text-center" role="alert">
+                                                    <p th:text="${session.userProfileMessage.content}"></p>
+                                                </div>
+                                                <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('userProfileMessage')}"></th:block>
+                                            </div>
+
+
+                                            <form class="php-email-form settings-form row g-3" id="profileForm" th:object="${User}" method="post" enctype="multipart/form-data">
+                                                <div class="row g-3">
+                                                    <input type="hidden" th:field="*{id}" />
+                                                    <div class="col-12">
+                                                        <label for="username" class="form-label">Name</label>
+                                                        <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label for="email" class="form-label">Email</label>
+                                                        <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label for="mobileNumber" class="form-label">Mobile No.</label>
+                                                        <input type="text" class="form-control" id="mobileNumber" th:field="*{mobileNumber}" required>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <label for="address" class="form-label">Address</label>
+                                                        <input type="text" class="form-control" id="address" th:field="*{address}">
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label for="city" class="form-label">City</label>
+                                                        <input type="text" class="form-control" id="city" th:field="*{city}">
+                                                    </div>
+
+                                                    <div class="col-md-4">
+                                                        <label for="state" class="form-label">State</label>
+                                                        <select id="state" class="form-select" th:field="*{state}">
+                                                            <option value="">Choose...</option>
+                                                            <option th:each="st : ${states}" th:value="${st}" th:text="${st}"></option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <label for="pincode" class="form-label">Zip</label>
+                                                        <input type="text" class="form-control" id="pincode" th:field="*{pincode}">
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" for="file">Profile Image</label>
+                                                        <input type="file" class="form-control" accept="image/*"
+                                                               id="file" name="file" />
+                                                    </div>
+
+                                                    <!-- Show Current Image -->
+                                                    <div class="mb-3">
+                                                        <img th:src="@{'/img/profile_img/' + ${User.profileImage}}" width="100" height="100"
+                                                             class="rounded-circle" />
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="form-buttons">
+                                                    <button type="button" class="btn-save" onclick="updateProfileAjax(this)">Update</button>
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+
+                                        <!-- Email Preferences -->
+                                        <div class="settings-section">
+                                            <h3>Email Preferences</h3>
+                                            <div class="preferences-list">
+                                                <div class="preference-item">
+                                                    <div class="preference-info">
+                                                        <h4>Order Updates</h4>
+                                                        <p>Receive notifications about your order status</p>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="orderUpdates" checked="">
+                                                    </div>
+                                                </div>
+
+                                                <div class="preference-item">
+                                                    <div class="preference-info">
+                                                        <h4>Promotions</h4>
+                                                        <p>Receive emails about new promotions and deals</p>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="promotions">
+                                                    </div>
+                                                </div>
+
+                                                <div class="preference-item">
+                                                    <div class="preference-info">
+                                                        <h4>Newsletter</h4>
+                                                        <p>Subscribe to our weekly newsletter</p>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="newsletter" checked="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Security Settings -->
+                                        <div class="settings-section" >
+                                            <h3>Security</h3>
+
+                                            <div th:if="${session.changePasswordMessage}" class="container">
+                                                <div th:classappend="' text-' + ${session.changePasswordMessage.type}"
+                                                     class="alert text-center" role="alert">
+                                                    <p th:text="${session.changePasswordMessage.content}"></p>
+                                                </div>
+                                                <th:block
+                                                        th:text="${@sessionHelperImpl.removeSessionAttribute('changePasswordMessage')}"></th:block>
+                                            </div>
+
+                                            <form id="changePasswordForm" class="php-email-form settings-form" enctype="multipart/form-data">
+                                                <div class="row g-3">
+                                                    <div class="col-md-12">
+                                                        <label for="currPassword" class="form-label">Current Password</label>
+                                                        <input type="password" class="form-control" id="currPassword" name="currPassword" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="newPassword" class="form-label">New Password</label>
+                                                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-buttons">
+                                                    <button type="button" class="btn-save" onclick="updatePassword()">Update Password</button>
+                                                </div>
+                                            </form>
+
+
+                                        </div>
+
+                                        <!-- Delete Account -->
+                                        <div class="settings-section danger-zone">
+                                            <h3>Delete Account</h3>
+                                            <div class="danger-zone-content">
+                                                <p>Once you delete your account, there is no going back. Please be certain.</p>
+                                                <button type="button" class="btn-danger" id="deleteAccountBtn" th:attr="onclick=|deleteAccount('${User.email}')|">Delete Account</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section><!-- /Account Section -->
+
+    </main>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Sidebar Fragment -->
+<div th:fragment="sidebar">
+    <div class="profile-menu collapse d-lg-block" id="profileMenu">
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar">
+                <img th:src="${User?.profileImage != null} ? @{'/img/profile_img/' + ${User.profileImage}} : @{'/img/person/person-f-1.webp'}"
+                     alt="Profile" />
+                <span class="status-badge" th:if="${User?.enable == true}"><i class="bi bi-shield-check"></i></span>
+            </div>
+            <h4 th:text="${User != null} ? ${User.username} : 'Guest User'">Sarah Anderson</h4>
+            <div class="user-status">
+                <i class="bi bi-award"></i>
+                <span th:text="${User.role == 'ROLE_USER'} ? 'Premium Member' : 'Standard Member'">Premium Member</span>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="menu-nav">
+            <ul class="nav flex-column" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='profile'} ? ' active'" th:href="@{/user/profile}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='myorders'} ? ' active'" th:href="@{/user/myorders}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>My Orders</span>
+                        <span class="badge" th:text="${ordersCount}">3</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='wishlist'} ? ' active'" th:href="@{/user/wishlist}">
+                        <i class="bi bi-heart"></i>
+                        <span>Wishlist</span>
+                        <span class="badge" th:text="${wishlistCount}">12</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='wallet'} ? ' active'" th:href="@{/user/wallet}">
+                        <i class="bi bi-wallet2"></i>
+                        <span>Payment Methods</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='reviews'} ? ' active'" th:href="@{/user/myreviews}">
+                        <i class="bi bi-star"></i>
+                        <span>My Reviews</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='addresses'} ? ' active'" th:href="@{/user/addresses}">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>Addresses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page=='settings'} ? ' active'" th:href="@{/user/settings}">
+                        <i class="bi bi-gear"></i>
+                        <span>Account Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="menu-footer">
+                <a href="#" class="help-link">
+                    <i class="bi bi-question-circle"></i>
+                    <span>Help Center</span>
+                </a>
+                <a href="#" class="logout-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</div>
+</html>

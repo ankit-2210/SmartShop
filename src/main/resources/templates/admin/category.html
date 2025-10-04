@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+</head>
+<body>
+
+<section>
+    <div class="container-fluid p-5 mt-5">
+        <div class="row">
+            <div class="col-md-4">
+
+                <div class="card card-sh p-4">
+                    <div class="text-center mb-3 card-header">
+                        <h3 class="text-center mx-auto">Add New Category</h3>
+                    </div>
+
+
+                    <div th:if="${session.categoryMessage}" class="container">
+                        <div th:classappend="' text-' + ${session.categoryMessage.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.categoryMessage.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('categoryMessage')}"></th:block>
+                    </div>
+
+
+                    <!-- Form Binding -->
+                    <form id="categoryForm" method="post" enctype="multipart/form-data">
+                        <!-- Category Name -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2" for="categoryName">Category Name</label>
+                            <input type="text" class="form-control" id="categoryName" name="categoryName"
+                                   placeholder="Enter category name" required/>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label ml-2" for="subcategoryName">Sub Category Name</label>
+                            <input type="text" class="form-control" id="subcategoryName" name="subcategoryName"
+                                   placeholder="Enter sub-category name"/>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label ml-2"> Status </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" id="active" value="true"
+                                       checked>
+                                <label class="form-check-label" for="active">
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" id="inactive"
+                                       value="false">
+                                <label class="form-check-label" for="inactive">
+                                    InActive
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2" for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"
+                                      placeholder="Enter category description" required></textarea>
+                        </div>
+
+                        <!-- Image/Icon -->
+                        <div class="mb-3">
+                            <label class="form-label ml-2"> Category Image/Icon</label>
+                            <input type="file" name="file" class="form-control" accept="image/*">
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-center mx-auto mt-3">
+                            <button type="button" class="btn btn-success px-4" onclick="addCategory()">Add Category
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="col-md-8">
+                <div class="card card-sh p-4">
+                    <div class="text-center card-header">
+                        <h3 class=" text-center mx-auto">Category Details</h3>
+                    </div>
+
+                    <form class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="row w-100">
+                            <div class="col-4 ms-3">
+                                <input type="text" class="form-control" placeholder="Search..."/>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                        <a th:href="@{'/admin/'}" class="btn btn-secondary me-4">Back</a>
+                    </form>
+
+                    <div th:if="${session.tableMessage}" class="container">
+                        <div th:classappend="' text-' + ${session.tableMessage.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.tableMessage.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('tableMessage')}"></th:block>
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center" scope="col">SL No.</th>
+                                <th class="text-center" scope="col">Category</th>
+                                <th class="text-center" scope="col">Sub Category</th>
+                                <th class="text-center" scope="col">Description</th>
+                                <th class="text-center" scope="col">Status</th>
+                                <th class="text-center" scope="col">Image</th>
+                                <th class="text-center" scope="col">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="sub : ${subcategories}">
+                                <td class="text-center" th:text="${sub.sno}"></td>
+                                <td class="text-center" th:text="${sub.category.categoryName}"></td>
+                                <td class="text-center" th:text="${sub.subcategoryName}"></td>
+                                <td class="text-center" th:text="${sub.description}"></td>
+                                <td class="text-center" th:text="${sub.isActive} ? 'Active' : 'InActive'"
+                                    th:classappend="${sub.isActive} ? 'text-success' : 'text-danger'"></td>
+                                <td class="text-center">
+                                    <img th:src="@{'/img/category_img/' + ${sub.imageName}}" width="60" height="60"
+                                         class="rounded-circle"/>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-primary btn-sm"
+                                            th:attr="data-bs-target='#editCategoryModal__' + ${sub.id}"
+                                            data-bs-toggle="modal">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                    <button class="btn btn-danger btn-sm"
+                                            th:onclick="'deleteSubCategory(' + ${sub.id} + ')'">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </td>
+
+
+                                <!-- Modal -->
+                                <div class="modal fade" th:id="'editCategoryModal__' + ${sub.id}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Category / Subcategory</h5>
+                                                <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" enctype="multipart/form-data">
+                                                    <input type="hidden" name="categoryId" th:value="${sub.category.id}"/>
+                                                    <input type="hidden" name="subcategoryId" th:value="${sub.id}"/>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Category Name</label>
+                                                        <input type="text" class="form-control" name="categoryName"
+                                                               th:value="${sub.category.categoryName}" required/>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Subcategory Name</label>
+                                                        <input type="text" class="form-control" name="subcategoryName"
+                                                               th:value="${sub.subcategoryName}" required/>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Description</label>
+                                                        <textarea class="form-control" name="description" rows="3"
+                                                                  required
+                                                                  th:text="${sub.description}"></textarea>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Status</label>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="isActive"
+                                                                   th:value="true" th:checked="${sub.isActive}"/>
+                                                            <label class="form-check-label">Active</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="isActive"
+                                                                   th:value="false" th:checked="${!sub.isActive}"/>
+                                                            <label class="form-check-label">Inactive</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Category / Subcategory Image</label>
+                                                        <input type="file" name="file" class="form-control"
+                                                               accept="image/*"/>
+                                                        <div class="mt-2">
+                                                            <img th:src="@{'/img/category_img/' + ${sub.imageName}}"
+                                                                 width="100" height="100" class="rounded-circle"/>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center">
+                                                        <button type="button" class="btn btn-warning px-4"
+                                                                th:onclick="'updateCategory(' + ${sub.id} + ')'">Update
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Modal -->
+
+
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- If no categories -->
+                        <div class="text-center my-5" th:if="${#lists.isEmpty(subcategories)}">
+                            <div class="alert alert-info py-3" role="alert" style="border-radius: 0.5rem;">
+                                <i class="fa-solid fa-info-circle me-2"></i> No categories available
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <nav aria-label="Page navigation example" th:if="${!#lists.isEmpty(subcategories)}">
+                        <ul class="pagination">
+                            <li class="page-item" th:classappend="${isFirst}?'disabled':''">
+                                <a class="page-link" th:href="@{'/admin/category?pageNo='+${pageNo-1}}">Previous</a>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                class="page-item" th:classappend="${pageNo+1==i}?'active':''">
+                                <a class="page-link" th:href="@{'/admin/category?pageNo='+${i-1}}"><span
+                                        th:text="${i}"></span></a></li>
+                            <li class="page-item" th:classappend="${isLast}?'disabled':''">
+                                <a class="page-link" th:href="@{'/admin/category?pageNo='+${pageNo+1}}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Register</title>
+</head>
+<body>
+
+<section>
+    <section class="text-gray-600 body-font">
+        <form id="registerForm" onsubmit="return saveUser(event)" class="form" method="post" enctype="multipart/form-data">
+            <div class="container px-5 py-5 mx-auto flex flex-wrap items-center">
+
+                <div class="lg:w-2/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
+                    <img src="img/ecom.png" class="d-block w-100" alt="...">
+                </div>
+
+                <div class="lg:w-3/6 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col md:ml-auto w-full md:mt-0">
+                    <h2 class="text-gray-900 text-lg font-medium title-font mb-5 text-center shadow p-3 bg-body-tertiary rounded">Register</h2>
+
+                    <div th:if="${session.userMessage}" class="container">
+                        <div th:classappend="' text-' + ${session.userMessage.type}"
+                             class="alert text-center" role="alert">
+                            <p th:text="${session.userMessage.content}"></p>
+                        </div>
+                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('userMessage')}"></th:block>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col">
+                            <label for="username" class="leading-7 text-sm text-gray-600 ml-2"> Full Name</label>
+                            <input type="text" id="username" name="username"
+                               class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <div class="col">
+                            <label for="mobileNumber" class="leading-7 text-sm text-gray-600 ml-2"> Mobile Number</label>
+                            <input type="number" id="mobileNumber" name="mobileNumber"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                    </div>
+
+
+                    <div class="relative mb-4">
+                        <label for="email" class="leading-7 text-sm text-gray-600 ml-2"> Email</label>
+                        <input type="email" id="email" name="email"
+                               class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col">
+                            <label for="address" class="leading-7 text-sm text-gray-600 ml-2"> Address</label>
+                            <input type="text" id="address" name="address"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <div class="col">
+                            <label for="state" class="leading-7 text-sm text-gray-600 ml-2"> State</label>
+                            <input type="text" id="state" name="state"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col">
+                            <label for="city" class="leading-7 text-sm text-gray-600 ml-2">City</label>
+                            <input type="text" id="city" name="city"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <div class="col">
+                            <label for="pincode" class="leading-7 text-sm text-gray-600 ml-2">Pincode</label>
+                            <input type="number" id="pincode" name="pincode"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col">
+                            <label for="password" class="leading-7 text-sm text-gray-600 ml-2">Password</label>
+                            <input type="text" id="password" name="password"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <div class="col">
+                            <label for="confirmPassword" class="leading-7 text-sm text-gray-600 ml-2">Confirm Password</label>
+                            <input type="text" id="confirmPassword" name="confirmPassword"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label ml-2">Profile Image</label>
+                        <input class="form-control" name="profile_img" type="file" />
+                    </div>
+
+                    <button type="submit"
+                            class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-3">Register</button>
+
+                    <div class="container relative mb-3  text-center">
+                        <br> Have an account ? <a th:href="@{/signin}" href="" class="text-blue-400"> Login</a>
+                    </div>
+
+                </div>
+
+            </div>
+        </form>
+    </section>
+
+</section>
+
+</body>
+</html>

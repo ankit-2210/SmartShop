@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Error Page</title>
+</head>
+<body>
+<section>
+
+    <main class="main">
+
+        <!-- Error 404 Section -->
+        <section id="error-404" class="error-404 section">
+
+            <div class="container">
+                <div class="text-center">
+                    <div class="success-icon mb-4 text-center">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <h2 class="success-title mb-3" th:text="${success}">Oops! Page Not Found</h2>
+                    <p class="error-text mb-4" >
+                        You can now log in securely with your new credentials.
+                        For your account’s safety, please make sure to keep your password confidential and avoid sharing it with anyone.
+                    </p>
+
+
+                    <div class="error-action">
+                        <a th:href="@{/signin}" class="btn btn-primary">Back to Login</a>
+                    </div>
+                </div>
+            </div>
+
+        </section><!-- /Error 404 Section -->
+
+    </main>
+</section>
+
+</body>
+</html>

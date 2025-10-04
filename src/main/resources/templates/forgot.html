@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Forgot Passoword</title>
+</head>
+<body>
+    <section>
+        <section class="text-gray-600 body-font">
+            <form id="login-form" class="form" th:action="@{/forgot}" method="post">
+                <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
+
+                    <div class="lg:w-2/5 md:w-4/5 bg-gray-100 rounded-lg p-8 flex flex-col md:mx-auto w-full mt-10 md:mt-0">
+                        <h2 class="text-gray-900 text-lg font-medium title-font mb-4 text-center shadow p-3 bg-body-tertiary rounded">Forgot Password</h2>
+
+                        <div th:if="${session.forgotMessage}" class="container">
+                            <div th:classappend="' text-' + ${session.forgotMessage.type}"
+                                 class="alert text-center" role="alert">
+                                <p th:text="${session.forgotMessage.content}"></p>
+                            </div>
+                            <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('forgotMessage')}"></th:block>
+                        </div>
+
+
+                        <div class="relative mb-2">
+                            <label for="email" class="leading-7 text-sm text-gray-600 ml-2">Email</label>
+                            <input type="email" id="email" name="email"
+                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter your email">
+                        </div>
+
+                        <div class="container relative mb-1 text-center ">
+                        <button
+                                class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-3">Send</button>
+                            </div>
+
+                    </div>
+
+                </div>
+            </form>
+        </section>
+
+
+
+
+    </section>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+
+<section>
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title light-background">
+            <div class="container d-lg-flex justify-content-between align-items-center">
+                <h1 class="mb-2 mb-lg-0">Account</h1>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="current">Account</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- Account Section -->
+        <section id="account" class="account section">
+
+            <div class="container">
+
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu d-lg-none mb-4">
+                    <button class="mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#profileMenu">
+                        <i class="bi bi-grid"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Profile Menu -->
+                    <div class="col-lg-3">
+                        <div th:replace="user/fragments/sidebar :: sidebar"></div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="col-lg-9">
+                        <div class="content-area">
+                            <div class="tab-content">
+
+                                <!-- Wishlist Tab -->
+                                <div class="tab-pane fade show active" id="wishlist">
+                                    <div class="section-header">
+                                        <h2>My Wishlist</h2>
+                                        <div class="header-actions">
+                                            <button type="button"
+                                                    class="btn-add-all"
+                                                    th:attr="data-userId=${User?.id}"
+                                                    th:onclick="${User?.id != null} ? 'addAllToCart(' + ${User?.id} + ')' : ''">
+                                                Add All to Cart
+                                            </button>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="wishlist-grid">
+                                        <!-- Wishlist Item 1 -->
+                                        <div class="wishlist-card" th:each="wishlist: ${wishlistItems}">
+                                            <div class="wishlist-image">
+                                                <img th:src="@{'/img/product_img/' + ${wishlist.product.image}}" th:alt="${wishlist.product.title}" />
+                                                <button class="btn-remove" type="button" aria-label="Remove from wishlist" th:attr="data-productId=${wishlist.product.id}, data-userId=${User?.id}" onclick="removeFromWishlist(this)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                                <div class="sale-badge" th:if="${wishlist.product.stock > 0  and wishlist.product.discount > 0}">
+                                                    <span th:text="${wishlist.product.discount}"></span>%
+                                                </div>
+                                                <div class="out-of-stock-badge" th:if="${wishlist.product.stock == 0}">Out of Stock</div>
+                                            </div>
+                                            <div class="wishlist-content">
+                                                <h4 -<span th:text="${wishlist.product.title}"></span>%>Lorem ipsum dolor sit amet</h4>
+                                                <div class="product-meta">
+                                                    <div class="rating">
+                                                        <!-- Show "No rating yet" if no reviews -->
+                                                        <span th:if="${wishlist.product.averageRating == 0}">No rating yet</span>
+
+                                                        <span th:unless="${wishlist.product.averageRating == 0}">
+                                                            <!-- full stars -->
+                                                            <i class="bi bi-star-fill"
+                                                                th:each="star : ${#numbers.sequence(1, T(java.lang.Math).floor(wishlist.product.averageRating ?: 0))}"></i>
+
+                                                            <!-- half star if decimal part >= 0.5 -->
+                                                            <i class="bi bi-star-half" th:if="${wishlist.product.averageRating % 1 >= 0.5}"></i>
+                                                            <!-- empty stars -->
+                                                            <i class="bi bi-star"
+                                                                th:if="${5 - T(java.lang.Math).ceil(wishlist.product.averageRating) > 0}"
+                                                                th:each="star : ${#numbers.sequence(1, 5 - T(java.lang.Math).ceil(wishlist.product.averageRating))}"></i>
+
+                                                            <span th:text="'(' + ${wishlist.product.averageRating} + ')'"></span>
+                                                        </span>
+
+                                                    </div>
+                                                    <div class="price">
+                                                        <span class="current" th:text="'₹' + ${wishlist.product.discountPrice != null ? wishlist.product.discountPrice : wishlist.product.price}">$79.99</span>
+                                                        <span class="original" th:if="${wishlist.product.discount >= 0}" th:text="'₹' + ${wishlist.product.price}">$99.99</span>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn-add-cart" th:if="${wishlist.product.stock > 0}"
+                                                        th:attr="data-stock=${wishlist.product.stock}, data-loggedIn=${User != null}, data-productId=${wishlist.product.id}, data-userId=${User?.id}"
+                                                        onclick="handleAddToCart(this)">Add to Cart</button>
+                                                <button type="button" class="btn-notify" th:if="${wishlist.product.stock == 0}">Notify When Available</button>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section><!-- /Account Section -->
+
+    </main>
+
+</section>
+
+</html>

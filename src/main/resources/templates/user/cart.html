@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Cart Page</title>
+</head>
+<body>
+    <section>
+        <main class="main">
+
+            <!-- Page Title -->
+            <div class="page-title light-background">
+                <div class="container d-lg-flex justify-content-between align-items-center">
+                    <h1 class="mb-2 mb-lg-0">Cart</h1>
+                    <nav class="breadcrumbs">
+                        <ol>
+                            <li><a href="index.html">Home</a></li>
+                            <li class="current">Cart</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div><!-- End Page Title -->
+
+            <!-- Cart Section -->
+            <section id="cart" class="cart section">
+
+                <div class="container">
+
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="cart-items">
+                                <!-- ✅ Empty cart message -->
+                                <div th:if="${#lists.isEmpty(carts)}" class="text-center mt-5">
+                                    <h4>🛒 Your cart is empty</h4>
+                                    <a th:href="@{'/'}" class="btn btn-primary mt-3">Continue Shopping</a>
+                                </div>
+
+
+                                <div th:if="${!#lists.isEmpty(carts)}">
+                                <div class="cart-header d-none d-lg-block">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-6">
+                                            <h5>Product</h5>
+                                        </div>
+                                        <div class="col-lg-2 text-center">
+                                            <h5>Price</h5>
+                                        </div>
+                                        <div class="col-lg-2 text-center">
+                                            <h5>Quantity</h5>
+                                        </div>
+                                        <div class="col-lg-2 text-center">
+                                            <h5>Total</h5>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cart Item 1 -->
+                                <div class="cart-item"
+                                     th:each="cart : ${carts}"
+                                     th:attr="data-id=${cart.id}, data-productId=${cart.product.id}, data-userId=${User?.id}">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
+                                            <div class="product-info d-flex align-items-center">
+                                                <div class="product-image">
+                                                    <img th:src="@{'/img/product_img/'+${cart.product.image}}" alt="Product" class="img-fluid" />
+                                                </div>
+                                                <div class="product-details">
+                                                    <h6 class="product-title" th:text="${cart.product.title}">Lorem ipsum dolor sit amet</h6>
+                                                    <div class="product-meta">
+                                                        <span class="product-color">Color: <span th:text="${cart.color != null ? cart.color : 'Midnight Black'}"></span> </span>
+                                                        <span class="product-size">Size: <span th:text="${cart.size != null ? cart.size : 'M'}"></span></span>
+                                                    </div>
+                                                    <button class="remove-item" type="button" onclick="updateCart(this, 'remove')">
+                                                        <i class="bi bi-trash"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                                            <div class="price-tag">
+                                                <span class="current-price" th:text="'₹'+${cart.product.discountPrice}">$89.99</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                                            <div class="quantity-selector">
+                                                <button class="quantity-btn decrease" onclick="updateCart(this, 'decrease')">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+
+                                                <input type="number" class="quantity-input" min="1" max="10" th:value="${cart.quantity}" readonly />
+
+                                                <button class="quantity-btn increase" onclick="updateCart(this, 'increase')">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                                            <div class="item-total">
+                                                <span class="subtotal-value" th:text="'₹' + ${cart.product.discountPrice * cart.quantity}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Cart Item -->
+
+
+                                <div class="cart-actions">
+                                    <div class="row">
+                                        <div class="col-lg-6 mb-3 mb-lg-0">
+                                            <div class="coupon-form">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" placeholder="Coupon code">
+                                                    <button class="btn btn-outline-accent bg-primary" type="button">Apply Coupon</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 text-md-end">
+                                            <button class="btn btn-outline-heading me-2">
+                                                <i class="bi bi-arrow-clockwise"></i> Update Cart
+                                            </button>
+                                            <button class="btn btn-outline-remove" th:onclick="'clearCart(' + ${User.id} + ')'">
+                                                <i class="bi bi-trash"></i> Clear Cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 mt-4 mt-lg-0" th:if="${!#lists.isEmpty(carts)}">
+                            <div class="cart-summary">
+                                <h4 class="summary-title">Order Summary</h4>
+
+                                <div class="summary-item">
+                                    <span class="summary-label">Subtotal</span>
+                                    <span id="cart-subtotal" class="summary-value" th:text="'₹'+${subtotal}">$269.96</span>
+                                </div>
+
+                                <div class="summary-item shipping-item">
+                                    <input type="hidden" id="userId" th:value="${User.id}">
+                                    <span class="summary-label">Shipping</span>
+                                    <div class="shipping-options">
+                                        <div class="form-check text-end">
+                                            <input class="form-check-input" type="radio" name="shipping" id="standard" value="standard" th:checked="${shippingType eq 'standard'}" th:disabled="${subtotal > 300}">
+                                            <label class="form-check-label" for="standard">Standard Delivery - ₹4.99</label>
+                                        </div>
+                                        <div class="form-check text-end">
+                                            <input class="form-check-input" type="radio" name="shipping" id="express" value="express" th:checked="${shippingType eq 'express'}" th:disabled="${subtotal > 300}">
+                                            <label class="form-check-label" for="express">Express Delivery - ₹12.99</label>
+                                        </div>
+                                        <div class="form-check text-end">
+                                            <input class="form-check-input" type="radio" name="shipping" id="free" value="free" th:checked="${shippingType eq 'free'}" th:disabled="${subtotal <= 300}">
+                                            <label class="form-check-label" for="free">Free Shipping (Orders over ₹300)</label>
+                                        </div>
+
+                                        <!-- ✅ Shipping cost dynamically updated -->
+                                        <div class="text-end mt-2">
+                                            <span id="cart-shipping" class="summary-value" th:text="'₹'+${shippingCost}">₹0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <span class="summary-label">Tax</span>
+                                    <span id="cart-tax" class="summary-value">₹27.00</span>
+                                </div>
+
+                                <div class="summary-item discount">
+                                    <span class="summary-label">Discount</span>
+                                    <span class="summary-value">-₹0.00</span>
+                                </div>
+
+                                <div class="summary-total">
+                                    <span class="summary-label">Total</span>
+                                    <span id="cart-total" class="summary-value" th:text="'₹'+${totalOrderPrice}">₹301.95</span>
+                                </div>
+
+                                <div class="checkout-button">
+                                    <a th:href="@{'/user/checkout'}" class="btn btn-accent w-100 bg-primary">
+                                        Proceed to Checkout <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+
+                                <div class="continue-shopping">
+                                    <a th:href="@{'/'}" class="btn btn-link w-100">
+                                        <i class="bi bi-arrow-left"></i> Continue Shopping
+                                    </a>
+                                </div>
+
+                                <div class="payment-methods">
+                                    <p class="payment-title">We Accept</p>
+                                    <div class="payment-icons">
+                                        <i class="bi bi-credit-card"></i>
+                                        <i class="bi bi-paypal"></i>
+                                        <i class="bi bi-wallet2"></i>
+                                        <i class="bi bi-bank"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section><!-- /Cart Section -->
+
+        </main>
+
+    </section>
+</body>
+</html>

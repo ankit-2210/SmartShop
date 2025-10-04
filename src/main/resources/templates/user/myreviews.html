@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+
+<section>
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title light-background">
+            <div class="container d-lg-flex justify-content-between align-items-center">
+                <h1 class="mb-2 mb-lg-0">Account</h1>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="current">Account</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- Account Section -->
+        <section id="account" class="account section">
+
+            <div class="container">
+
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu d-lg-none mb-4">
+                    <button class="mobile-menu-toggle" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#profileMenu">
+                        <i class="bi bi-grid"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Profile Menu -->
+                    <div class="col-lg-3">
+                        <div th:replace="user/fragments/sidebar :: sidebar"></div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="col-lg-9">
+                        <div class="content-area">
+                            <div class="tab-content">
+
+                                <!-- Reviews Tab -->
+                                <div class="tab-pane fade show active" id="reviews">
+                                    <div class="section-header">
+                                        <h2>My Reviews</h2>
+                                        <div class="header-actions">
+                                            <div class="dropdown">
+                                                <button class="filter-btn" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-funnel"></i>
+                                                    <span>Sort by: Recent</span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="#">Recent</a></li>
+                                                    <li><a class="dropdown-item" href="#">Highest Rating</a></li>
+                                                    <li><a class="dropdown-item" href="#">Lowest Rating</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="reviews-grid">
+
+                                        <!-- Review Card 1 -->
+                                        <div class="review-card" th:each="review : ${reviews}">
+                                            <div class="review-header">
+                                                <img th:src="@{'/img/product_img/' + ${review.product.image}}"
+                                                     alt="Product" class="product-image"/>
+                                                <div class="review-meta">
+                                                    <h4 th:text="${review.product.title}">Lorem ipsum dolor sit
+                                                        amet</h4>
+                                                    <div class="rating">
+                                                        <i th:each="star : ${#numbers.sequence(1,5)}"
+                                                           th:class="${star <= review.rating} ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+                                                        <span th:text="'(' + ${review.rating} + '.0)'">(5.0)</span>
+                                                    </div>
+                                                    <div class="review-date"
+                                                         th:text="${'Reviewed on ' + #temporals.format(review.createdAt, 'MMM dd, yyyy')}">
+                                                        Reviewed on Feb 15, 2025
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="review-content" th:text="${review.comment}">
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                                                    eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                            </div>
+                                            <div class="review-footer">
+                                                <button type="button" class="btn-edit"
+                                                        data-bs-toggle="modal"
+                                                        th:attr="data-bs-target='#editReviewModal' + ${review.id}">Edit
+                                                    Review
+                                                </button>
+                                                <button type="button" class="btn-delete">Delete</button>
+                                            </div>
+
+
+                                            <div class="modal fade"
+                                                 th:id="'editReviewModal' + ${review.id}"
+                                                 tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Review</h5>
+                                                            <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <!-- Hidden review ID -->
+                                                            <input type="hidden" th:id="'reviewId' + ${review.id}"
+                                                                   th:value="${review.id}"/>
+
+                                                            <!-- Rating -->
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Rating</label>
+                                                                <select class="form-select"
+                                                                        th:id="'rating' + ${review.id}" required>
+                                                                    <option th:selected="${review.rating == 5}"
+                                                                            value="5">⭐ 5 - Excellent
+                                                                    </option>
+                                                                    <option th:selected="${review.rating == 4}"
+                                                                            value="4">⭐ 4 - Good
+                                                                    </option>
+                                                                    <option th:selected="${review.rating == 3}"
+                                                                            value="3">⭐ 3 - Average
+                                                                    </option>
+                                                                    <option th:selected="${review.rating == 2}"
+                                                                            value="2">⭐ 2 - Poor
+                                                                    </option>
+                                                                    <option th:selected="${review.rating == 1}"
+                                                                            value="1">⭐ 1 - Terrible
+                                                                    </option>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- Comment -->
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Comment</label>
+                                                                <textarea class="form-control"
+                                                                          th:id="'comment' + ${review.id}" rows="3"
+                                                                          th:text="${review.comment}"></textarea>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    data-bs-dismiss="modal">Cancel
+                                                            </button>
+                                                            <button type="button" class="btn btn-primary"
+                                                                    th:onclick="|updateReview(${review.id})|">Save
+                                                                Changes
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section><!-- /Account Section -->
+
+    </main>
+
+</section>
+
+</html>

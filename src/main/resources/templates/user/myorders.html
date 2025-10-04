@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Account Page</title>
+</head>
+<body>
+<section>
+    <main class="main">
+
+        <!-- Page Title -->
+        <div class="page-title light-background">
+            <div class="container d-lg-flex justify-content-between align-items-center">
+                <h1 class="mb-2 mb-lg-0">Account</h1>
+                <nav class="breadcrumbs">
+                    <ol>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="current">Account</li>
+                    </ol>
+                </nav>
+            </div>
+        </div><!-- End Page Title -->
+
+        <!-- Account Section -->
+        <section id="account" class="account section">
+
+            <div class="container">
+
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu d-lg-none mb-4">
+                    <button class="mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#profileMenu">
+                        <i class="bi bi-grid"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Profile Menu -->
+                    <div class="col-lg-3">
+                        <div th:replace="user/fragments/sidebar :: sidebar"></div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="col-lg-9">
+                        <div class="content-area">
+                            <div class="tab-content">
+                                <!-- Orders Tab -->
+                                <div class="tab-pane fade show active" id="orders">
+                                    <div class="section-header">
+                                        <h2>My Orders</h2>
+                                        <div class="header-actions">
+                                            <div class="search-box">
+                                                <i class="bi bi-search"></i>
+                                                <input type="text" placeholder="Search orders...">
+                                            </div>
+
+                                            <div class="dropdown">
+                                                <button class="filter-btn" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-funnel"></i>
+                                                    <span>Filter</span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='ALL')}">All Orders</a></li>
+                                                    <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='Received')}">Received</a></li>
+                                                    <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='In Progress')}">Processing</a></li>
+                                                    <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='Out for Delivery')}">Shipped</a></li>
+                                                    <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='Delivered')}">Delivered</a></li>
+                                                    <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='Cancelled')}">Cancelled</a></li>
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="orders-grid">
+
+                                        <!-- Order Card 1 -->
+                                        <div class="order-card" th:each="order, iterStat : ${orders}">
+                                            <div class="order-header">
+                                                <div class="order-id">
+                                                    <span class="label">Order ID:</span>
+                                                    <span class="value" th:text="'#'+${order.orderId}">#ORD-2024-1278</span>
+                                                </div>
+                                                <div class="order-date" th:text="${order.orderDate != null ? #dates.format(order.orderDate, 'dd-MM-yyyy') : '-'}">Feb 20, 2025</div>
+                                            </div>
+
+                                            <div class="order-content">
+                                                <div class="product-grid flex flex-wrap gap-2">
+                                                    <img th:each="item : ${order.items}" th:src="@{'/img/product_img/' + ${item.product.image}}" alt="Product" />
+                                                </div>
+                                                <div class="order-info">
+                                                    <div class="info-row">
+                                                        <span>Status</span>
+                                                        <span class="status"
+                                                              th:text="${order.orderStatus}"
+                                                              th:classappend="
+                                                                            ${#strings.equalsIgnoreCase(order.orderStatus,'Cancelled')} ? 'cancelled' :
+                                                                            (${#strings.equalsIgnoreCase(order.orderStatus,'Delivered')} ? 'delivered' :
+                                                                            (${#strings.equalsIgnoreCase(order.orderStatus,'Out for Delivery')} ? 'shipped' :
+                                                                            (${#strings.equalsIgnoreCase(order.orderStatus,'In Progress') or
+                                                                               #strings.equalsIgnoreCase(order.orderStatus,'Received')} ? 'processing' : '')))">
+
+                                                        </span>
+                                                    </div>
+                                                    <div class="info-row">
+                                                        <span>Items</span>
+                                                        <span th:text="${order.displayItemCount}">3 items</span>
+                                                    </div>
+                                                    <div class="info-row">
+                                                        <span>Total</span>
+                                                        <span class="price" th:text="'₹' + ${order.totalAmount}">$789.99</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="order-footer">
+                                                <!-- Delivered -->
+                                                <button type="button" class="btn-review"
+                                                        th:if="${#strings.equalsIgnoreCase(order.orderStatus,'Delivered') and !order.allReviewed}"
+                                                        data-bs-toggle="modal"
+                                                        th:attr="data-bs-target='#reviewModal' + ${order.id}">
+                                                    Write Review
+                                                </button>
+
+                                                <!-- If already reviewed -->
+                                                <button type="button"  th:if="${#strings.equalsIgnoreCase(order.orderStatus,'Delivered') and order.allReviewed}"
+                                                   class="btn btn-secondary"
+                                                        th:onclick="|window.location.href='@{/user/myreviews}'|">
+                                                    View Review
+                                                </button>
+
+                                                <!-- Review Modal (per order, shows all products in that order) -->
+                                                <div class="modal fade"
+                                                     th:id="'reviewModal' + ${order.id}"
+                                                     tabindex="-1">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+<!--                                                            <form th:action="@{/user/addReviews}" method="post">-->
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Write Reviews for Your Products</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <!-- ✅ Loop through all items in the order -->
+                                                                    <div th:each="item, iterStat : ${order.items}" class="mb-4 p-3 border rounded review-item">
+                                                                        <div class="d-flex align-items-center mb-2">
+                                                                            <img th:src="@{'/img/product_img/' + ${item.product.image}}"
+                                                                                 alt="Product"
+                                                                                 class="me-3"
+                                                                                 style="width:60px;height:60px;object-fit:cover;">
+                                                                            <h6 th:text="${item.product.title}" class="mb-0"></h6>
+                                                                        </div>
+
+                                                                        <!-- Hidden inputs -->
+                                                                        <input type="hidden" name="productId" th:value="${item.product.id}"/>
+                                                                        <input type="hidden" name="orderId" th:value="${order.id}"/>
+
+                                                          R              <!-- Rating -->
+                                                                        <div class="mb-2">
+                                                                            <label class="form-label">Rating</label>
+                                                                            <select class="form-select" name="rating" required>
+                                                                                <option value="5">⭐ 5 - Excellent</option>
+                                                                                <option value="4">⭐ 4 - Good</option>
+                                                                                <option value="3">⭐ 3 - Average</option>
+                                                                                <option value="2">⭐ 2 - Poor</option>
+                                                                                <option value="1">⭐ 1 - Terrible</option>
+                                                                            </select>
+                                                                        </div>
+
+                                                                        <!-- Comment -->
+                                                                        <div>
+                                                                            <label class="form-label">Comment</label>
+                                                                            <textarea class="form-control"
+                                                                                      name="comment"
+                                                                                      rows="2"
+                                                                                      placeholder="Write your review..."></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="submit" class="btn btn-primary" th:attr="onclick='submitReviews(' + ${order.id} + ')'">Submit All Reviews</button>
+                                                                </div>
+<!--                                                            </form>-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <!-- Cancelled -->
+                                                <button type="button" class="btn-reorder"
+                                                        th:if="${#strings.equalsIgnoreCase(order.orderStatus,'Cancelled')}">
+                                                    Reorder
+                                                </button>
+
+                                                <button th:if="!(${#strings.equalsIgnoreCase(order.orderStatus,'Delivered')}
+                                                                or ${#strings.equalsIgnoreCase(order.orderStatus,'Cancelled')})" type="button" class="btn-track"
+                                                        data-bs-toggle="collapse"
+                                                        th:attr="data-bs-target='#tracking' + ${iterStat.index}"
+                                                        aria-expanded="false">
+                                                    Track Order
+                                                </button>
+                                                <button type="button" class="btn-details"
+                                                        data-bs-toggle="collapse"
+                                                        th:attr="data-bs-target='#details' + ${iterStat.index}"
+                                                        aria-expanded="false">
+                                                    View Details
+                                                </button>
+                                            </div>
+
+                                            <!-- Order Tracking -->
+                                            <div class="collapse tracking-info" th:id="'tracking' + ${iterStat.index}">
+                                                <div class="tracking-timeline">
+
+                                                    <div th:each="step, iterStat : ${order.orderSteps}"
+                                                         th:class="${iterStat.index < order.currentStepIndex} ? 'timeline-item completed' :
+                                                                        (${iterStat.index == order.currentStepIndex} ? 'timeline-item active' : 'timeline-item')">
+
+
+                                                        <div class="timeline-icon">
+                                                            <i th:class="${step.status.icon}"
+                                                            th:classappend="${iterStat.index < order.currentStepIndex} ? ' text-success' :
+                                                                                (iterStat.index == order.currentStepIndex ? ' text-warning' : ' text-secondary')">
+                                                        </i>
+                                                        </div>
+
+                                                        <div class="timeline-content">
+                                                            <h5 th:text="${step.status.name}">Step Name</h5>
+                                                            <p th:text="${step.status.description}">Step Description</p>
+                                                            <span class="timeline-date" th:if="${step.date != null}"
+                                                                  th:text="${#temporals.format(step.date, 'MMM dd, yyyy - HH:mm a')}"></span>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+
+                                            <!-- Order Details -->
+                                            <div class="collapse order-details"  th:id="'details' + ${iterStat.index}">
+                                                <div class="details-content">
+                                                    <div class="detail-section">
+                                                        <h5>Order Information</h5>
+                                                        <div class="info-grid">
+                                                            <div class="info-item">
+                                                                <span class="label">Payment Method</span>
+                                                                <span class="value">Credit Card (**** 4589)</span>
+                                                            </div>
+                                                            <div class="info-item">
+                                                                <span class="label">Shipping Method</span>
+                                                                <span class="value">Express Delivery (2-3 days)</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="detail-section">
+                                                        <h5>Items (3)</h5>
+                                                        <div class="order-items">
+                                                            <div class="item">
+                                                                <img src="assets/img/product/product-1.webp" alt="Product" loading="lazy">
+                                                                <div class="item-info">
+                                                                    <h6>Lorem ipsum dolor sit amet</h6>
+                                                                    <div class="item-meta">
+                                                                        <span class="sku">SKU: PRD-001</span>
+                                                                        <span class="qty">Qty: 1</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="item-price">$899.99</div>
+                                                            </div>
+
+                                                            <div class="item">
+                                                                <img src="assets/img/product/product-2.webp" alt="Product" loading="lazy">
+                                                                <div class="item-info">
+                                                                    <h6>Consectetur adipiscing elit</h6>
+                                                                    <div class="item-meta">
+                                                                        <span class="sku">SKU: PRD-002</span>
+                                                                        <span class="qty">Qty: 2</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="item-price">$599.95</div>
+                                                            </div>
+
+                                                            <div class="item">
+                                                                <img src="assets/img/product/product-3.webp" alt="Product" loading="lazy">
+                                                                <div class="item-info">
+                                                                    <h6>Sed do eiusmod tempor</h6>
+                                                                    <div class="item-meta">
+                                                                        <span class="sku">SKU: PRD-003</span>
+                                                                        <span class="qty">Qty: 1</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="item-price">$129.99</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="detail-section">
+                                                        <h5>Price Details</h5>
+                                                        <div class="price-breakdown">
+                                                            <div class="price-row">
+                                                                <span>Subtotal</span>
+                                                                <span>$1,929.93</span>
+                                                            </div>
+                                                            <div class="price-row">
+                                                                <span>Shipping</span>
+                                                                <span>$15.99</span>
+                                                            </div>
+                                                            <div class="price-row">
+                                                                <span>Tax</span>
+                                                                <span>$159.98</span>
+                                                            </div>
+                                                            <div class="price-row total">
+                                                                <span>Total</span>
+                                                                <span>$2,105.90</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="detail-section">
+                                                        <h5>Shipping Address</h5>
+                                                        <div class="address-info">
+                                                            <p>Sarah Anderson<br>123 Main Street<br>Apt 4B<br>New York, NY 10001<br>United States</p>
+                                                            <p class="contact">+1 (555) 123-4567</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <div class="pagination-wrapper d-flex justify-content-center my-4">
+                                        <!-- Previous Button -->
+                                        <button type="button"
+                                                class="btn-prev"
+                                                th:disabled="${isFirst}"
+                                                th:onclick="'window.location.href=\'/user/myorders?pageNo=' + (${pageNo-1}) + '\';'">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                        <!-- Page Numbers -->
+                                        <div class="page-numbers">
+                                            <!-- First few pages -->
+                                            <button type="button"
+                                                    th:each="i : ${#numbers.sequence(1, totalPages>3 ? 3 : totalPages)}"
+                                                    th:text="${i}"
+                                                    th:classappend="${pageNo+1 == i} ? 'active' : ''"
+                                                    th:onclick="'window.location.href=\'/user/myorders?pageNo=' + (${i-1}) + '\';'">
+                                            </button>
+                                            <!-- Ellipsis (only if many pages) -->
+                                            <span th:if="${totalPages > 4}">...</span>
+                                            <!-- Last page -->
+                                            <button type="button"
+                                                    th:if="${totalPages > 3}"
+                                                    th:text="${totalPages}"
+                                                    th:onclick="'window.location.href=\'/user/myorders?pageNo=' + (${totalPages-1}) + '\';'">
+                                            </button>
+                                        </div>
+                                        <!-- Next Button -->
+                                        <button type="button"
+                                                class="btn-next"
+                                                th:disabled="${isLast}"
+                                                th:onclick="'window.location.href=\'/user/myorders?pageNo=' + (${pageNo+1}) + '\';'">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section><!-- /Account Section -->
+
+    </main>
+
+</section>
+</body>
+</html>
