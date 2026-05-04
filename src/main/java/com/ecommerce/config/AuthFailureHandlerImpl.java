@@ -1,6 +1,6 @@
 package com.ecommerce.config;
 
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.repository.UserRepository;
 import com.ecommerce.service.UserService;
 import com.ecommerce.util.AppConstant;

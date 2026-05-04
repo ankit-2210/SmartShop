@@ -1,4 +1,4 @@
-package com.ecommerce.model.Orders;
+package com.ecommerce.payload.response.Orders;
 
 import lombok.*;
 

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -24,6 +26,9 @@ public class SubCategory {
     @JoinColumn(name = "category_id")
     @JsonIgnore
     private Category category;
+
+    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Brand> brands;
 
     @Transient
     private Integer sno;

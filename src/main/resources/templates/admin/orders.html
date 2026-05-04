@@ -100,17 +100,21 @@
                     </div>
 
 
-                    <nav aria-label="Page navigation example" th:if="${!#lists.isEmpty({orders)}">
-
+                    <nav aria-label="Page navigation example" th:if="${!#lists.isEmpty(orders)}">
                         <ul class="pagination">
-                            <li class="page-item" th:classappend="${isFirst}?'disabled':''">
-                                <a class="page-link" th:href="@{'/admin/orders?pageNo='+${pageNo-1}}">Previous</a>
+                            <li class="page-item" th:classappend="${isFirst} ? 'disabled' : ''">
+                                <a class="page-link" th:href="@{'/admin/orders?pageNo=' + ${pageNo - 1}}">Previous</a>
                             </li>
+
                             <li th:each="i : ${#numbers.sequence(1, totalPages)}"
-                                class="page-item" th:classappend="${pageNo+1==i}?'active':''">
-                                <a class="page-link" th:href="@{'/admin/orders?pageNo='+${i-1}}"><span th:text="${i}"></span></a></li>
-                            <li class="page-item" th:classappend="${isLast}?'disabled':''">
-                                <a class="page-link" th:href="@{'/admin/orders?pageNo='+${pageNo+1}}">Next</a>
+                                class="page-item" th:classappend="${pageNo + 1 == i} ? 'active' : ''">
+                                <a class="page-link" th:href="@{'/admin/orders?pageNo=' + ${i - 1}}">
+                                    <span th:text="${i}"></span>
+                                </a>
+                            </li>
+
+                            <li class="page-item" th:classappend="${isLast} ? 'disabled' : ''">
+                                <a class="page-link" th:href="@{'/admin/orders?pageNo=' + ${pageNo + 1}}">Next</a>
                             </li>
                         </ul>
                     </nav>
@@ -158,11 +162,11 @@
                         </table>
 
                         <!-- Update Order Status Form -->
-                        <form th:action="@{/admin/updateOrder}" method="post" class="mt-3" enctype="multipart/form-data">
-                            <input type="hidden" name="orderId" th:value="${order.id}"/>
+                        <form th:id="'updateForm_' + ${order.id}" th:action="@{/admin/updateOrder}" method="post" class="mt-3" enctype="multipart/form-data">
+                            <input type="hidden" name="orderId" th:id="'orderId_' + ${order.id}" th:value="${order.id}"/>
                             <div class="row">
                                 <div class="col-8">
-                                    <select name="orderStatus" class="form-select" required>
+                                    <select th:id="'orderStatus_' + ${order.id}" name="orderStatus" class="form-select" required>
                                         <option th:selected="${order.orderStatus == 'In Progress'}">In Progress</option>
                                         <option th:selected="${order.orderStatus == 'Received'}">Received</option>
                                         <option th:selected="${order.orderStatus == 'Packed'}">Packed</option>
@@ -172,7 +176,12 @@
                                     </select>
                                 </div>
                                 <div class="col-4">
-                                    <button type="submit" class="btn btn-primary w-100" th:disabled="${order.orderStatus == 'Delivered' or order.orderStatus == 'Cancelled'}">Update</button>
+                                    <button type="button"
+                                            class="btn btn-primary w-100 update-btn"
+                                            th:data-order-id="${order.id}"
+                                            th:disabled="${order.orderStatus == 'Delivered' or order.orderStatus == 'Cancelled'}">
+                                        Update
+                                    </button>
                                 </div>
                             </div>
                         </form>

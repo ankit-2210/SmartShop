@@ -28,77 +28,132 @@
                     </div>
 
 
-                    <div class="row">
-                        <div class="col">
-                            <label for="username" class="leading-7 text-sm text-gray-600 ml-2"> Full Name</label>
+                    <!-- Full Name & Mobile -->
+                    <div class="flex gap-4 mb-2">
+                        <div class="w-1/2">
+                            <label for="username" class="leading-7 text-sm text-gray-600">Full Name</label>
                             <input type="text" id="username" name="username"
-                               class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 input-field">
+                            <p class="text-red-500 text-sm mt-1"></p>
                         </div>
-                        <div class="col">
-                            <label for="mobileNumber" class="leading-7 text-sm text-gray-600 ml-2"> Mobile Number</label>
+                        <div class="w-1/2">
+                            <label for="mobileNumber" class="leading-7 text-sm text-gray-600">Mobile Number</label>
                             <input type="number" id="mobileNumber" name="mobileNumber"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 input-field">
+                            <p class="text-red-500 text-sm mt-1"></p>
                         </div>
                     </div>
 
 
-                    <div class="relative mb-4">
-                        <label for="email" class="leading-7 text-sm text-gray-600 ml-2"> Email</label>
+                    <!-- Email -->
+                    <div class="mb-2">
+                        <label for="email" class="leading-7 text-sm text-gray-600">Email</label>
                         <input type="email" id="email" name="email"
-                               class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 input-field">
+                        <p class="text-red-500 text-sm mt-1"></p>
                     </div>
 
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label for="address" class="leading-7 text-sm text-gray-600 ml-2"> Address</label>
-                            <input type="text" id="address" name="address"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                        </div>
-                        <div class="col">
-                            <label for="state" class="leading-7 text-sm text-gray-600 ml-2"> State</label>
-                            <input type="text" id="state" name="state"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                        </div>
+                    <!-- Address -->
+                    <div class="mb-2">
+                        <label for="address" class="leading-7 text-sm text-gray-600">Address</label>
+                        <input type="text" id="address" name="address"
+                               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 input-field">
+                        <p class="text-red-500 text-sm mt-1"></p>
                     </div>
 
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label for="city" class="leading-7 text-sm text-gray-600 ml-2">City</label>
-                            <input type="text" id="city" name="city"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                        </div>
-                        <div class="col">
-                            <label for="pincode" class="leading-7 text-sm text-gray-600 ml-2">Pincode</label>
-                            <input type="number" id="pincode" name="pincode"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                        </div>
-                    </div>
 
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label for="password" class="leading-7 text-sm text-gray-600 ml-2">Password</label>
-                            <input type="text" id="password" name="password"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    <!-- Country & State -->
+                    <div class="flex gap-4 mb-2">
+                        <div class="w-1/2">
+                            <label for="country" class="leading-7 text-sm text-gray-600">Country</label>
+                            <select id="country" name="country" onchange="loadStates(this.value)" class="w-full border border-gray-300 rounded px-3 py-2 input-field">
+                                <option value="">Select Country</option>
+                            </select>
+                            <p class="text-red-500 text-sm mt-1"></p>
                         </div>
-                        <div class="col">
-                            <label for="confirmPassword" class="leading-7 text-sm text-gray-600 ml-2">Confirm Password</label>
-                            <input type="text" id="confirmPassword" name="confirmPassword"
-                                   class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        <div class="w-1/2">
+                            <label for="state" class="leading-7 text-sm text-gray-600">State</label>
+                            <select id="state" name="state" onchange="loadCities(country.value, this.value)" class="w-full border border-gray-300 rounded px-3 py-2 input-field">
+                                <option value="">Select State</option>
+                            </select>
+                            <p class="text-red-500 text-sm mt-1"></p>
                         </div>
                     </div>
 
+                    <!-- City & Pincode -->
+                    <div class="flex gap-4 mb-2">
+                        <div class="w-1/2">
+                            <label for="city" class="leading-7 text-sm text-gray-600">City</label>
+                            <select id="city" name="city" class="w-full border border-gray-300 rounded px-3 py-2 input-field">
+                                <option value="">Select City</option>
+                            </select>
+                            <p class="text-red-500 text-sm mt-1"></p>
+                        </div>
+                        <div class="w-1/2">
+                            <label for="pincode" class="leading-7 text-sm text-gray-600">Pincode</label>
+                            <input type="text" id="pincode" name="pincode"
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 input-field">
+                            <p class="text-red-500 text-sm mt-1"></p>
+                        </div>
+                    </div>
+
+                    <!-- Password & Confirm -->
+                    <div class="flex gap-4 mb-2">
+                        <!-- Password -->
+                        <div class="w-1/2 relative">
+                            <label for="password" class="leading-7 text-sm text-gray-600">Password</label>
+                            <input type="password" id="password" name="password"
+                                   class="w-full border border-gray-300 rounded px-3 py-2 pr-10 input-field">
+                            <!-- Eye icon -->
+                            <button type="button" class="absolute right-3 top-9 text-gray-500" onclick="togglePassword('password', this)">
+                                <!-- Eye open -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                     stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                            <p class="text-red-500 text-sm mt-1"></p>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="w-1/2 relative">
+                            <label for="confirmPassword" class="leading-7 text-sm text-gray-600">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                   class="w-full border border-gray-300 rounded px-3 py-2 pr-10 input-field">
+                            <!-- Eye icon -->
+                            <button type="button" class="absolute right-3 top-9 text-gray-500" onclick="togglePassword('confirmPassword', this)">
+                                <!-- Eye open -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                     stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                            <p class="text-red-500 text-sm mt-1"></p>
+                        </div>
+                    </div>
+
+
+                    <!-- Profile Image -->
                     <div class="mb-3 mt-3">
-                        <label class="form-label ml-2">Profile Image</label>
-                        <input class="form-control" name="profile_img" type="file" />
+                        <label class="form-label leading-7 text-sm text-gray-600">Profile Image</label>
+                        <input class="w-full border border-gray-300 rounded px-3 py-2" name="profile_img" type="file" />
                     </div>
 
+                    <!-- Submit -->
                     <button type="submit"
-                            class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-3">Register</button>
+                            class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-3">
+                        Register
+                    </button>
 
-                    <div class="container relative mb-3  text-center">
-                        <br> Have an account ? <a th:href="@{/signin}" href="" class="text-blue-400"> Login</a>
+                    <div class="container relative mb-3 text-center">
+                        <br> Have an account? <a th:href="@{/signin}" class="text-blue-400">Login</a>
                     </div>
-
                 </div>
 
             </div>

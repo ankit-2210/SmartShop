@@ -99,13 +99,16 @@
                                            th:text="|Save ₹${#numbers.formatDecimal(product.price - product.discountPrice, 1, 2)}|">
                                         Save ₹0
                                      </span>
-                                    <span class="discount-percent" th:text="${product.discount+'% off'}">(21% off)</span>
+                                    <span class="discount-percent" th:text="${product.discount+'% off'}"></span>
                                 </div>
                             </div>
 
                             <div class="variant-section">
                                 <div class="color-selection">
-                                    <div class="selected-variant">Category: <span th:text="${product.subcategory}">Midnight Black</span></div>
+                                    <div class="selected-variant">Category: <span th:text="${product.subcategory}"></span></div>
+                                    <div class="selected-variant mt-2">
+                                        Brand: <span th:text="${product.brand != null ? product.brand.name : 'N/A'}">Brand Name</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -136,33 +139,32 @@
                                 <div class="color-selection">
                                     <label class="variant-label">Available Colors:</label>
                                     <div class="color-grid">
-                                        <div class="color-chip active" data-color="Midnight Black" style="background: linear-gradient(135deg, #1a1a1a, #000);">
-                                            <span class="selection-check"><i class="bi bi-check"></i></span>
-                                        </div>
-                                        <div class="color-chip" data-color="Pearl White" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
-                                            <span class="selection-check"><i class="bi bi-check"></i></span>
-                                        </div>
-                                        <div class="color-chip" data-color="Ocean Blue" style="background: linear-gradient(135deg, #0066cc, #004499);">
-                                            <span class="selection-check"><i class="bi bi-check"></i></span>
-                                        </div>
-                                        <div class="color-chip" data-color="Forest Green" style="background: linear-gradient(135deg, #28a745, #155724);">
+                                        <div th:each="color, iterStat : ${colors}"
+                                             th:classappend="${iterStat.index == 0} ? 'active' : ''"
+                                             class="color-chip"
+                                             th:data-color="${color.colorName}"
+                                             th:style="'background: linear-gradient(135deg, ' + ${color.hexCode} + ', ' + ${color.hexCode} + ');'">
                                             <span class="selection-check"><i class="bi bi-check"></i></span>
                                         </div>
                                     </div>
-                                    <div class="selected-variant">Selected: <span id="selected-color">Midnight Black</span></div>
+                                    <div class="selected-variant">
+                                        Selected: <span id="selected-color" th:text="${colors[0].colorName}">Color Name</span>
+                                    </div>
+
                                 </div>
                             </div>
 
                             <!-- Size Selection Dropdown -->
-                            <div class="size-selection my-3">
+                            <div class="size-selection my-3" th:if="${sizes != null and !sizes.isEmpty()}">
                                 <label for="sizeDropdown" class="fw-bold d-block mb-2">Available Sizes:</label>
                                 <select class="form-select w-auto" id="sizeDropdown">
-                                    <option value="M" >M</option>
-                                    <option value="L">L</option>
-                                    <option value="S">S</option>
+                                    <option th:each="size : ${sizes}"
+                                            th:value="${size.size}"
+                                            th:text="${size.size}">
+                                    </option>
                                 </select>
                                 <div class="mt-2 text-muted">
-                                    Selected Size: <span id="selected-size" class="fw-semibold">M</span>
+                                    Selected Size: <span id="selected-size" class="fw-semibold" th:text="${sizes[0].size}">Size</span>
                                 </div>
                             </div>
 

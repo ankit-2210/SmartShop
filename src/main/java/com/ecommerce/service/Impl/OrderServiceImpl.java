@@ -3,9 +3,9 @@ package com.ecommerce.service.Impl;
 import com.ecommerce.model.Orders.Order;
 import com.ecommerce.model.Orders.OrderAddress;
 import com.ecommerce.model.Orders.OrderItem;
-import com.ecommerce.model.Orders.OrderRequest;
+import com.ecommerce.payload.request.Orders.OrderRequest;
 import com.ecommerce.model.Users.Cart.Cart;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.repository.*;
 import com.ecommerce.service.*;
 import com.ecommerce.util.OrderStatus;
@@ -35,10 +35,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void saveOrder(Long userId, OrderRequest orderRequest, com.razorpay.Order razorpayOrder, double totalAmount) {
-
         User user = userRepository.findById(userId).get();
         List<Cart> carts = cartRepository.findByUserId(userId);
-
         if (carts.isEmpty()) {
             throw new IllegalStateException("Cart is empty for user: " + userId);
         }

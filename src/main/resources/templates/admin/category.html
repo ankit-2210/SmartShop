@@ -17,16 +17,6 @@
                         <h3 class="text-center mx-auto">Add New Category</h3>
                     </div>
 
-
-                    <div th:if="${session.categoryMessage}" class="container">
-                        <div th:classappend="' text-' + ${session.categoryMessage.type}"
-                             class="alert text-center" role="alert">
-                            <p th:text="${session.categoryMessage.content}"></p>
-                        </div>
-                        <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('categoryMessage')}"></th:block>
-                    </div>
-
-
                     <!-- Form Binding -->
                     <form id="categoryForm" method="post" enctype="multipart/form-data">
                         <!-- Category Name -->

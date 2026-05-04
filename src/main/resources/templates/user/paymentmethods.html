@@ -107,15 +107,24 @@
                                             </div>
                                         </div>
 
-
-
                                     </div>
 
+                                    <!-- If no payment cards exist -->
+                                    <div th:if="${#lists.isEmpty(paymentCards)}" class="no-cards-message text-center p-5"
+                                         style="background-color: #fff3cd; color: #856404; border-radius: 8px; border: 1px solid #ffeeba;">
+                                        <i class="bi bi-info-circle" style="font-size: 2rem;"></i>
+                                        <h4 class="mt-2">No Payment Methods Added Yet!</h4>
+                                        <p class="text-muted">Add a card to make payments faster and more convenient.</p>
+                                        <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addCardModal">
+                                            Add a New Card
+                                        </button>
+                                    </div>
 
                                     <div class="payment-cards-grid">
+
                                         <!-- Payment Card 1 -->
                                         <div class="payment-card" th:id="'payment-card-' + ${card.id}" th:each="card : ${paymentCards}"
-                                             th:classappend="${card.isDefault} ? ' default' : ''">
+                                             th:classappend="${card.isDefault} ? ' default' : ''" th:unless="${#lists.isEmpty(paymentCards)}">
                                             <div class="card-header">
                                                 <i class="bi bi-credit-card"></i>
                                                 <div class="card-badges">
@@ -124,7 +133,7 @@
                                                 </div>
                                             </div>
                                             <div class="card-body">
-                                                <div class="card-number" th:text="${card.cardNumber}">•••• •••• •••• 4589</div>
+                                                <div class="card-number" th:text="'•••• •••• •••• ' + ${#strings.substring(card.cardNumber, card.cardNumber.length() - 4)}">•••• •••• •••• 4589</div>
                                                 <div class="card-info">
                                                     <span th:text="'Expires ' + ${card.expiry}">Expires 09/2026</span>
                                                 </div>

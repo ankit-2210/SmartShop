@@ -3,10 +3,12 @@ package com.ecommerce.controller;
 import com.ecommerce.helper.Message;
 
 import com.ecommerce.model.Orders.Order;
-import com.ecommerce.model.Orders.OrderItemResponse;
-import com.ecommerce.model.Orders.OrderResponse;
+import com.ecommerce.payload.dto.BrandDTO;
+import com.ecommerce.payload.dto.SubCategoryDTO;
+import com.ecommerce.payload.response.Orders.OrderItemResponse;
+import com.ecommerce.payload.response.Orders.OrderResponse;
 import com.ecommerce.model.Users.Products.*;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.repository.*;
 import com.ecommerce.service.CategoryService;
 import com.ecommerce.service.OrderService;
@@ -14,17 +16,17 @@ import com.ecommerce.service.ProductService;
 import com.ecommerce.service.UserService;
 
 import com.ecommerce.util.EmailUtil;
+import com.ecommerce.util.JasperReportUtil;
 import com.ecommerce.util.OrderStatus;
 import com.ecommerce.util.OrderStep;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,7 +68,13 @@ public class AdminController {
     private OrderRepository orderRepository;
 
     @Autowired
+    private BrandRepository brandRepository;
+
+    @Autowired
     private EmailUtil emailUtil;
+
+    @Autowired
+    private JasperReportUtil jasperReportUtil;
 
 
     @ModelAttribute
@@ -339,6 +347,147 @@ public class AdminController {
     }
 
 
+    @GetMapping("/brands")
+    public String brands(Model model, @RequestParam(name="pageNo", defaultValue = "0") Integer pageNo, @RequestParam(name="pageSize", defaultValue = "5") Integer pageSize) {
+        model.addAttribute("brands", categoryService.getAllBrands());
+        model.addAttribute("title", "Manage Brands");
+
+        return "admin/brands";
+    }
+
+    @PostMapping("/brands/add")
+    public ResponseEntity<Map<String, Object>> addBrand(@RequestParam("subcategoryId") Long subCategoryId,
+                                                        @RequestParam("name") String name, @RequestParam("description") String description,
+                                                        @RequestParam("isActive") Boolean isActive, @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // ✅ Fetch subcategory safely
+            SubCategory subCategory = subCategoryRepository.findById(subCategoryId)
+                    .orElseThrow(() -> new RuntimeException("SubCategory not found"));
+
+            // ✅ Create brand
+            Brand brand = new Brand();
+            brand.setName(name);
+            brand.setDescription(description);
+            brand.setIsActive(isActive);
+            brand.setSubCategory(subCategory);
+
+            // ✅ Handle logo upload
+            if (file != null && !file.isEmpty()) {
+                File saveDir =  new ClassPathResource("static/img").getFile();
+
+                // Ensure folder exists
+                if (!saveDir.exists()) {
+                    saveDir.mkdirs();
+                }
+
+                String newImageName = file.getOriginalFilename();
+                File saveFile = new ClassPathResource("static/img").getFile();
+                Path newImagePath = Paths.get(saveFile.getAbsolutePath(), "brand_img", newImageName);
+                Files.copy(file.getInputStream(), newImagePath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Uploaded new image: " + newImageName);
+                brand.setLogo(newImageName);
+            }
+
+            // ✅ Save brand
+            brandRepository.save(brand);
+            response.put("status", "success");
+            response.put("message", "Brand added successfully!");
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", "error");
+            response.put("message", "Something went wrong! " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/brands/update")
+    public ResponseEntity<Map<String, Object>> updateBrand(@RequestParam("brandId") Long brandId, @RequestParam("subcategoryId") Long subCategoryId,
+                                                           @RequestParam("name") String name, @RequestParam("description") String description,
+                                                           @RequestParam("isActive") Boolean isActive, @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Brand brand = brandRepository.findById(brandId)
+                    .orElseThrow(() -> new RuntimeException("Brand not found"));
+
+            SubCategory subCategory = subCategoryRepository.findById(subCategoryId)
+                    .orElseThrow(() -> new RuntimeException("SubCategory not found"));
+
+            brand.setName(name);
+            brand.setDescription(description);
+            brand.setIsActive(isActive);
+            brand.setSubCategory(subCategory);
+
+            if (file != null && !file.isEmpty()) {
+                File staticDir = new ClassPathResource("static/img").getFile();
+                File brandDir = new File(staticDir, "brand_img");
+                if (!brandDir.exists())
+                    brandDir.mkdirs();
+
+                String fileName = file.getOriginalFilename();
+                Path newPath = Paths.get(brandDir.getAbsolutePath(), fileName);
+                Files.copy(file.getInputStream(), newPath, StandardCopyOption.REPLACE_EXISTING);
+
+                brand.setLogo(fileName);
+            }
+
+            brandRepository.save(brand);
+            response.put("status", "success");
+            response.put("message", "Brand updated successfully!");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", "error");
+            response.put("message", "Error updating brand: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @DeleteMapping("/brands/delete/{id}")
+    public ResponseEntity<Map<String, Object>> deleteBrand(@PathVariable("id") Long id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Optional<Brand> optionalBrand = brandRepository.findById(id);
+            if (optionalBrand.isEmpty()) {
+                response.put("status", "error");
+                response.put("message", "Brand not found!");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            Brand brand = optionalBrand.get();
+
+            // ✅ Delete associated logo if exists
+            if (brand.getLogo() != null && !brand.getLogo().isEmpty()) {
+                File staticDir = new ClassPathResource("static/img/brand_img").getFile();
+                File logoFile = new File(staticDir, brand.getLogo());
+                if (logoFile.exists()) {
+                    logoFile.delete();
+                }
+            }
+
+            brandRepository.delete(brand);
+
+            response.put("status", "success");
+            response.put("message", "Brand deleted successfully!");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", "error");
+            response.put("message", "Error deleting brand: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
 
     @GetMapping("/addproduct")
     public String addProduct(Model model) {
@@ -364,14 +513,30 @@ public class AdminController {
 
     @GetMapping("/subcategories/{categoryId}")
     @ResponseBody
-    public List<SubCategory> getSubcategories(@PathVariable Long categoryId) {
+    public List<SubCategoryDTO> getSubcategories(@PathVariable Long categoryId) {
         Category category = categoryService.getCategoryById(categoryId);
 
         return category.getSubCategories()
                 .stream()
                 .filter(SubCategory::getIsActive)
+                .map(sub -> new SubCategoryDTO(sub.getId(), sub.getSubcategoryName()))
                 .toList();
     }
+
+    @GetMapping("/brands/{subCategoryId}")
+    @ResponseBody
+    public List<BrandDTO> getBrandsBySubcategory(@PathVariable Long subCategoryId) {
+        return brandRepository.findBySubCategory_Id(subCategoryId)
+                .stream()
+                .filter(Brand::getIsActive) // show only active brands
+                .map(brand -> new BrandDTO(
+                        brand.getId(),
+                        brand.getName(),
+                        brand.getProducts().stream().count()
+                ))
+                .toList();
+    }
+
 
 
     @GetMapping("/products")
@@ -425,19 +590,12 @@ public class AdminController {
     }
 
 
-
     @PostMapping("/saveProduct")
     @ResponseBody
-    public Map<String, String> saveProduct(
-            @ModelAttribute Product product,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(name="categoryId") Long categoryId,
-            @RequestParam(name="subcategory", required=false) Long subcategoryId,
-            @RequestParam(name="colorNames", required=false) List<String> colorNames,
-            @RequestParam(name="hexCodes", required=false) List<String> hexCodes,
-            @RequestParam(name="sizeNames", required=false) List<String> sizeNames,   // match HTML names
-            @RequestParam(name="sizeStocks", required=false) List<Integer> sizeStocks // match HTML names
-    ) {
+    public Map<String, String> saveProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile file,
+                                           @RequestParam(name="categoryId") Long categoryId, @RequestParam(name="subcategory", required=false) Long subcategoryId,
+                                           @RequestParam(name="colorNames", required=false) List<String> colorNames, @RequestParam(name="hexCodes", required=false) List<String> hexCodes,
+                                           @RequestParam(name="sizeNames", required=false) List<String> sizeNames, @RequestParam(name="sizeStocks", required=false) List<Integer> sizeStocks) {
         Map<String, String> response = new HashMap<>();
         try {
             // Category
@@ -582,7 +740,6 @@ public class AdminController {
                                              @RequestParam(value = "sizeNames", required = false) List<String> sizeNames, @RequestParam(value = "sizeStocks", required = false) List<Integer> sizeStocks) {
 
         Map<String, String> response = new HashMap<>();
-
         try {
             Product oldProduct = productService.getProductById(product.getId());
             if (oldProduct == null) {
@@ -618,7 +775,7 @@ public class AdminController {
             oldProduct.setTitle(product.getTitle());
             oldProduct.setDescription(product.getDescription());
             oldProduct.setPrice(product.getPrice());
-            oldProduct.setStock(product.getStock());
+            oldProduct.setStock(product.getStock() != null ? product.getStock() : 0);
             oldProduct.setCategory(product.getCategory());
             oldProduct.setSubcategory(product.getSubcategory());
             oldProduct.setIsActive(product.getIsActive());
@@ -638,19 +795,18 @@ public class AdminController {
             Iterator<ProductColor> colorIterator = existingColors.iterator();
             while (colorIterator.hasNext()) {
                 ProductColor pc = colorIterator.next();
-                if (!selectedColorSet.contains(pc.getColorName().toUpperCase())) {
+                if(!selectedColorSet.contains(pc.getColorName().toUpperCase())) {
                     colorIterator.remove(); // orphanRemoval = true will delete it from DB
                 }
             }
 
             // Add new colors
-            if (colorNames != null && hexCodes != null) {
-                for (int i = 0; i < colorNames.size(); i++) {
+            if(colorNames != null && hexCodes != null) {
+                for(int i = 0; i < colorNames.size(); i++) {
                     String name = colorNames.get(i);
                     String hex = hexCodes.get(i);
-                    boolean exists = existingColors.stream()
-                            .anyMatch(c -> c.getColorName().equalsIgnoreCase(name));
-                    if (!exists) {
+                    boolean exists = existingColors.stream().anyMatch(c -> c.getColorName().equalsIgnoreCase(name));
+                    if(!exists) {
                         ProductColor newColor = new ProductColor();
                         newColor.setColorName(name);
                         newColor.setHexCode(hex);
@@ -659,31 +815,46 @@ public class AdminController {
                     }
                 }
             }
+
             oldProduct.setColors(existingColors);
-
-
             System.out.println("Colors after update:");
             existingColors.forEach(c -> System.out.println("Color: " + c.getColorName() + ", Hex: " + c.getHexCode()));
 
-
             // --- Update sizes only for Clothing ---
-            if ("Clothing".equalsIgnoreCase(oldProduct.getCategory()) && sizeNames != null && sizeStocks != null
-                    && sizeNames.size() == sizeStocks.size()) {
+            if ("Clothing".equalsIgnoreCase(oldProduct.getCategory())) {
+                List<ProductSize> existingSizes = oldProduct.getSizes();
+                // Convert selected size names to a Set for quick lookup
+                Set<String> selectedSizes = (sizeNames != null) ? new HashSet<>(sizeNames) : new HashSet<>();
+                // --- Remove sizes that are no longer selected ---
+                existingSizes.removeIf(size -> !selectedSizes.contains(size.getSize()));
+                // --- Update or add new sizes ---
+                if(sizeNames != null && sizeStocks != null && sizeNames.size() == sizeStocks.size()) {
+                    for(int i = 0; i < sizeNames.size(); i++) {
+                        String sizeName = sizeNames.get(i);
+                        Integer stockValue = sizeStocks.get(i);
 
-                Map<String, Integer> existingSizeMap = oldProduct.getSizeStockMap();
-
-                // Update existing sizes or add new ones
-                for (int i = 0; i < sizeNames.size(); i++) {
-                    String size = sizeNames.get(i);
-                    Integer stock = sizeStocks.get(i);
-                    existingSizeMap.put(size, stock); // overwrite stock for existing or add new
+                        // Check if this size already exists
+                        ProductSize existing = existingSizes.stream().filter(s -> s.getSize().equalsIgnoreCase(sizeName)).findFirst().orElse(null);
+                        if(existing != null) {
+                            existing.setStock(stockValue);
+                        }
+                        else {
+                            ProductSize newSize = new ProductSize();
+                            newSize.setSize(sizeName);
+                            newSize.setStock(stockValue);
+                            newSize.setProduct(oldProduct);
+                            existingSizes.add(newSize);
+                        }
+                    }
                 }
 
-                oldProduct.setSizeStockMap(existingSizeMap);
-                oldProduct.updateStockFromSizes(); // update total stock
+                oldProduct.setSizes(existingSizes);
+                oldProduct.updateStockFromSizes(); // updates total stock automatically
             }
             else {
-                oldProduct.getSizeStockMap().clear(); // Clear sizes for non-clothing
+                // Not clothing → remove all sizes
+                oldProduct.getSizes().clear();
+                oldProduct.setStock(product.getStock()); // Use single stock input
             }
 
             // Save updated product
@@ -706,8 +877,6 @@ public class AdminController {
 
         return response;
     }
-
-
 
 
 
@@ -787,68 +956,80 @@ public class AdminController {
     }
 
     @PostMapping("/updateOrder")
-    public String updateOrderStatus(@RequestParam("orderId") Long orderId, @RequestParam("orderStatus") String orderStatus, HttpSession session) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateOrderStatus(@RequestParam("orderId") Long orderId, @RequestParam("orderStatus") String orderStatus) {
+        Map<String, Object> response = new HashMap<>();
 
-        String oldStatus=order.getOrderStatus();
-        order.setOrderStatus(orderStatus);
-        orderRepository.save(order);
+        try {
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+            String oldStatus = order.getOrderStatus();
+            order.setOrderStatus(orderStatus);
+            orderRepository.save(order);
+            System.out.println(orderStatus);
 
-        // ✅ Send mail only for specific statuses
-        if ("Received".equals(orderStatus) || "Out for Delivery".equals(orderStatus) ||
-                "Delivered".equals(orderStatus) || "Cancelled".equals(orderStatus)) {
-            System.out.println(order);
-            emailUtil.sendMailForOrder(order, orderStatus);
-        }
-
-        // Set timeline steps using orderDate as base
-        List<OrderStep> steps = new ArrayList<>();
-        List<OrderStatus> allSteps = List.of(
-                OrderStatus.IN_PROGRESS,
-                OrderStatus.ORDER_RECEIVED,
-                OrderStatus.PRODUCT_PACKED,
-                OrderStatus.OUT_FOR_DELIVERY,
-                OrderStatus.DELIVERED
-        );
-
-        // Use orderDate as start time, fallback to now if null
-        LocalDateTime baseTime = order.getOrderDate() != null
-                ? order.getOrderDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-                : LocalDateTime.now().minusDays(1);
-
-        int currentStepIndex = 0;
-        for (int i = 0; i < allSteps.size(); i++) {
-            OrderStatus stepStatus = allSteps.get(i);
-            LocalDateTime stepDate = null;
-
-            // Steps before or equal to current status are considered completed
-            if (stepStatus.getName().equalsIgnoreCase(orderStatus) ||
-                    i < allSteps.indexOf(OrderStatus.valueOf(orderStatus.toUpperCase().replace(" ", "_")))) {
-                stepDate = baseTime.plusHours(i * 2); // Each step +2 hours from orderDate
-                currentStepIndex = i;
+            // ✅ Send mail only for specific statuses
+            if ("Received".equals(orderStatus) || "Out for Delivery".equals(orderStatus) ||
+                    "Delivered".equals(orderStatus) || "Cancelled".equals(orderStatus)) {
+                System.out.println(order);
+                emailUtil.sendMailForOrder(order, orderStatus);
             }
 
-            steps.add(new OrderStep(stepStatus, stepDate));
+            // Use this if you want invoice ONLY when delivered:
+//            if ("Delivered".equals(orderStatus)) {
+                String pdfPath = jasperReportUtil.generateOrderInvoice(order);
+                System.out.println("Invoice Generated: " + pdfPath);
+//            }
+
+            // Set timeline steps using orderDate as base
+            List<OrderStep> steps = new ArrayList<>();
+            List<OrderStatus> allSteps = List.of(
+                    OrderStatus.IN_PROGRESS,
+                    OrderStatus.RECEIVED,
+                    OrderStatus.PACKED,
+                    OrderStatus.OUT_FOR_DELIVERY,
+                    OrderStatus.DELIVERED
+            );
+
+            // Use orderDate as start time, fallback to now if null
+            LocalDateTime baseTime = order.getOrderDate() != null
+                    ? order.getOrderDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                    : LocalDateTime.now().minusDays(1);
+
+            int currentStepIndex = 0;
+            for (int i = 0; i < allSteps.size(); i++) {
+                OrderStatus stepStatus = allSteps.get(i);
+                LocalDateTime stepDate = null;
+
+                // Steps before or equal to current status are considered completed
+                if (stepStatus.getName().equalsIgnoreCase(orderStatus) ||
+                        i < allSteps.indexOf(OrderStatus.valueOf(orderStatus.toUpperCase().replace(" ", "_")))) {
+                    stepDate = baseTime.plusHours(i * 2); // Each step +2 hours from orderDate
+                    currentStepIndex = i;
+                }
+
+                steps.add(new OrderStep(stepStatus, stepDate));
+            }
+
+            order.setOrderSteps(steps);
+            order.setCurrentStepIndex(currentStepIndex);
+
+            // ✅ Build JSON success response
+            response.put("success", true);
+            response.put("message", "Order #" + order.getOrderId() + " updated from " + oldStatus + " to " + orderStatus);
+            response.put("newStatus", orderStatus);
+
+            return ResponseEntity.ok(response);
         }
-
-        order.setOrderSteps(steps);
-        order.setCurrentStepIndex(currentStepIndex);
-
-        String msg = "Order #" + order.getOrderId() + "  status updated from " + oldStatus + " to " + orderStatus + "!";
-        session.setAttribute("orderMessage", new Message(msg, "success"));
-        return "redirect:/admin/orders";
-
+        catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error updating order: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
-
 
     @GetMapping("/colors")
     public String colors(Model model){
         model.addAttribute("title", "Manage Colors");
-//        model.addAttribute("colors", colorRepository.findAll());
         return "admin/colors";
     }
-
-
-
-
 }

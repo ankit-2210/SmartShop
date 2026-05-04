@@ -1,9 +1,225 @@
-function saveUser(event) {
-    event.preventDefault(); // stop form reload
+const countryDropdown = document.getElementById("country");
+const stateDropdown = document.getElementById("state");
+const cityDropdown = document.getElementById("city");
 
-    let form = document.getElementById("registerForm");
-    console.log(form);
-    let formData = new FormData(form);
+// Optional: saved values from DB
+const savedCountry = /*[[${User.country}]]*/ '';
+const savedState = /*[[${User.state}]]*/ '';
+const savedCity = /*[[${User.city}]]*/ '';
+
+// 1️⃣ Load countries
+fetch("https://countriesnow.space/api/v0.1/countries/positions")
+    .then(res => res.json())
+    .then(data => {
+        data.data.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.name;
+            opt.text = c.name;
+            countryDropdown.appendChild(opt);
+        });
+
+        // Optional: preselect saved country
+        if(savedCountry) countryDropdown.value = savedCountry;
+    });
+
+// 2️⃣ Load states only when country is selected
+function loadStates(country) {
+    stateDropdown.innerHTML = '<option value="">Select State</option>';
+    cityDropdown.innerHTML = '<option value="">Select City</option>';
+    if(!country) return;
+
+    fetch("https://countriesnow.space/api/v0.1/countries/states", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country: country })
+    })
+    .then(res => res.json())
+    .then(result => {
+        if(result.data && result.data.states){
+            result.data.states.forEach(s => {
+                const opt = document.createElement("option");
+                opt.value = s.name;
+                opt.text = s.name;
+                stateDropdown.appendChild(opt);
+            });
+
+            // Optional: preselect saved state if country matches
+            if(savedCountry === country && savedState){
+                stateDropdown.value = savedState;
+                loadCities(country, savedState);
+            }
+        }
+    });
+}
+
+// 3️⃣ Load cities when state is selected
+function loadCities(country, state){
+    cityDropdown.innerHTML = '<option value="">Select City</option>';
+    if(!state) return;
+
+    fetch("https://countriesnow.space/api/v0.1/countries/state/cities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country: country, state: state })
+    })
+    .then(res => res.json())
+    .then(result => {
+        if(result.data){
+            result.data.forEach(city => {
+                const opt = document.createElement("option");
+                opt.value = city;
+                opt.text = city;
+                cityDropdown.appendChild(opt);
+            });
+
+            // Optional: preselect saved city if country/state match
+            if(savedCountry === country && savedState === state && savedCity){
+                cityDropdown.value = savedCity;
+            }
+        }
+    });
+}
+
+
+
+function togglePassword(fieldId, button) {
+    const input = document.getElementById(fieldId);
+    const svg = button.querySelector('svg');
+
+    if (input.type === "password") {
+        input.type = "text";
+        // Change to “eye-off” icon
+        svg.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.05 10.05 0 012.646-4.407m3.627-2.777A9.954 9.954 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.597 2.57M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 3l18 18" />
+        `;
+    }
+     else {
+        input.type = "password";
+        // Back to “eye” icon
+        svg.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        `;
+    }
+}
+
+
+
+function saveUser(event) {
+    event.preventDefault(); // prevent form submission
+
+    const form = document.getElementById("registerForm");
+    let isValid = true;
+
+    // Clear all previous error messages
+    form.querySelectorAll("p.text-red-500").forEach(p => p.textContent = "");
+
+    // Fields to validate
+    const fields = [
+        { id: "username", name: "Full Name", type: "text" },
+        { id: "mobileNumber", name: "Mobile Number", type: "mobile" },
+        { id: "email", name: "Email", type: "email" },
+        { id: "pincode", name: "Pincode", type: "pincode" },
+        { id: "password", name: "Password", type: "password" },
+        { id: "confirmPassword", name: "Confirm Password", type: "confirmPassword" }
+    ];
+
+    // Validate each field
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        let value = input.value.trim();
+        let errorEl = input.nextElementSibling;
+
+        if(!errorEl || !errorEl.classList.contains("text-red-500")){
+            errorEl = document.createElement("p");
+            errorEl.className = "text-red-500 text-sm mt-1";
+            input.insertAdjacentElement("afterend", errorEl);
+        }
+        errorEl.textContent = "";
+
+        if(!value){
+            errorEl.textContent = `${field.name} is required.`;
+            isValid = false;
+            return;
+        }
+
+        if(field.type === "email"){
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(value)){
+                errorEl.textContent = "Invalid email format.";
+                isValid = false;
+            }
+        }
+
+        if(field.type === "mobile"){
+            const mobileRegex = /^\d{10}$/;
+            if(!mobileRegex.test(value)){
+                errorEl.textContent = "Mobile number must be 10 digits.";
+                isValid = false;
+            }
+        }
+
+        if(field.type === "pincode"){
+            const pinRegex = /^\d{6}$/;
+            if(!pinRegex.test(value)){
+                errorEl.textContent = "Pincode must be 6 digits.";
+                isValid = false;
+            }
+        }
+
+        if(field.type === "confirmPassword"){
+            const password = document.getElementById("password").value.trim();
+            if(value !== password){
+                errorEl.textContent = "Passwords do not match.";
+                isValid = false;
+            }
+        }
+    });
+
+
+    // ✅ Profile image validation
+    const imageInput = form.querySelector('input[name="profile_img"]');
+    if(imageInput.files.length > 0){
+        const file = imageInput.files[0];
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+        const maxSizeMB = 2;
+        const fileSizeMB = file.size/(1024 * 1024);
+
+        if(!allowedTypes.includes(file.type)){
+            Swal.fire({
+                title: "Invalid File Type",
+                text: "Only JPG, JPEG, PNG, and WEBP images are allowed.",
+                icon: "error"
+            });
+            isValid = false;
+        }
+        else if(fileSizeMB > maxSizeMB){
+            Swal.fire({
+                title: "File Too Large",
+                text: `Image must be smaller than ${maxSizeMB} MB.`,
+                icon: "error"
+            });
+            isValid = false;
+        }
+    }
+
+    if(!isValid){
+        Swal.fire({
+            title: "Form Invalid!",
+            text: "Please correct the errors highlighted below.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+        return false; // stop submission
+    }
+
+    // Submit form via fetch
+    const formData = new FormData(form);
 
     fetch("/saveUser", {
         method: "POST",
@@ -37,7 +253,7 @@ function saveUser(event) {
         Swal.fire("Error!", "Something went wrong.", "error");
     });
 
-    return false; // prevent normal submit
+    return false; // prevent normal form submit
 }
 
 
@@ -82,6 +298,9 @@ function updateProfileAjax(button) {
         }
     });
 }
+
+
+
 
 
 function updatePassword(){

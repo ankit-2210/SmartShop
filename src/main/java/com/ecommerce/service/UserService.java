@@ -1,8 +1,8 @@
 package com.ecommerce.service;
 
-import com.ecommerce.model.Users.Address;
+import com.ecommerce.model.Users.Profile.Address;
 import com.ecommerce.model.Users.Cart.PaymentCard;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 
 import java.util.List;
 

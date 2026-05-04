@@ -1,9 +1,10 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.helper.Message;
+import com.ecommerce.payload.dto.BrandDTO;
 import com.ecommerce.model.Users.Products.Category;
 import com.ecommerce.model.Users.Products.SubCategory;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.model.Users.Products.Product;
 import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.service.CartService;
@@ -118,14 +119,22 @@ public class HomeController {
 
     @GetMapping("/register")
     public String register(Model model) {
+        String[] countries = Arrays.stream(Locale.getISOCountries())
+                .map(code -> new Locale("", code).getDisplayCountry())
+                .sorted()
+                .toArray(String[]::new);
 
+        model.addAttribute("countries", countries);
         model.addAttribute("title", "Register - Ecommerce Shopping Cart");
 
         return "register";
     }
 
     @GetMapping("/products")
-    public String products(Model model, @RequestParam(value = "category", defaultValue = "") String categoryName,  @RequestParam(value = "subcategory", defaultValue = "") String subcategoryName, @RequestParam(name="pageNo", defaultValue = "0") Integer pageNo, @RequestParam(name="pageSize", defaultValue = "5") Integer pageSize) {
+    public String products(Model model, @RequestParam(value = "category", defaultValue = "") String categoryName,  @RequestParam(value = "subcategory", defaultValue = "") String subcategoryName,
+                           @RequestParam(value = "colors", required = false) List<String> selectedColors,
+                           @RequestParam(value = "minPrice", required = false) Double minPrice, @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+                           @RequestParam(name="pageNo", defaultValue = "0") Integer pageNo, @RequestParam(name="pageSize", defaultValue = "5") Integer pageSize) {
         // Fetch all categories with at least one active subcategory
         List<Category> activeCategories = categoryService.getAllActiveCategory();
 
@@ -138,16 +147,53 @@ public class HomeController {
                 )
         );
 
-        // Fetch paginated products (filtering implemented in productService)
-        Page<Product> page = productService.getAllActiveProducts(categoryName, subcategoryName, pageNo, pageSize);
-        List<Product> products = page.getContent();
+        if (selectedColors != null && !selectedColors.isEmpty()) {
+            for (String color : selectedColors) {
+                System.out.println("Selected color: " + color);
+            }
+        }
+        else {
+            System.out.println("No colors selected");
+        }
 
+        // Fetch paginated products (filtering implemented in productService)
+//        Page<Product> page = productService.getAllActiveProducts(categoryName, subcategoryName, pageNo, pageSize);
+        Page<Product> page;
+        if ((minPrice != null || maxPrice != null) && (!categoryName.isEmpty() || !subcategoryName.isEmpty() || (selectedColors != null && !selectedColors.isEmpty()))) {
+            // Filter by price + category/subcategory + colors
+            page = productService.getProductsByFilters(categoryName, subcategoryName, selectedColors, minPrice, maxPrice, pageNo, pageSize);
+        }
+        else if (selectedColors != null && !selectedColors.isEmpty() && (!categoryName.isEmpty() || !subcategoryName.isEmpty())) {
+            // Filter by category/subcategory + colors
+            page = productService.getProductsByCategorySubcategoryAndColors(categoryName, subcategoryName, selectedColors, pageNo, pageSize);
+        }
+        else if (selectedColors != null && !selectedColors.isEmpty()) {
+            // Filter only by colors
+            page = productService.getProductsByColors(selectedColors, pageNo, pageSize);
+        }
+        else if (!categoryName.isEmpty() || !subcategoryName.isEmpty()) {
+            // Filter only by category/subcategory
+            page = productService.getAllActiveProducts(categoryName, subcategoryName, pageNo, pageSize);
+        }
+        else if (minPrice != null || maxPrice != null) {
+            // Filter only by price
+            page = productService.getProductsByPriceRange(minPrice, maxPrice, pageNo, pageSize);
+        }
+        else {
+            // No filters
+            page = productService.getAllActiveProducts("", "", pageNo, pageSize);
+        }
+
+        List<Product> products = page.getContent();
         Colors[] colors = Colors.values();
+        List<BrandDTO> brands = categoryService.getAllBrands();
 
         model.addAttribute("title", "Products - Ecommerce Shopping Cart");
         model.addAttribute("Categories", activeCategories);
         model.addAttribute("Products", products);
         model.addAttribute("colors", colors);
+        model.addAttribute("selectedColors", selectedColors);
+        model.addAttribute("brands", brands);
 
         model.addAttribute("pageNo", page.getNumber());
         model.addAttribute("pageSize", page.getSize());
@@ -159,6 +205,8 @@ public class HomeController {
         return "product";
     }
 
+
+
     @GetMapping("/product/{id}")
     public String product(@PathVariable Long id,  Model model) {
 
@@ -166,6 +214,11 @@ public class HomeController {
 
         Product product=productService.getProductWithRating(id);
         model.addAttribute("product", product);
+        model.addAttribute("colors", product.getColors());
+
+        if ("Clothing".equalsIgnoreCase(product.getCategory())) {
+            model.addAttribute("sizes", product.getSizes());
+        }
 
         return "view_product";
     }

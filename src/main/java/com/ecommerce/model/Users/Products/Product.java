@@ -48,6 +48,10 @@ public class Product {
     private Double discountPrice;   // Price after discount
     private Boolean isActive;       // Active/Inactive
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
+
     @Transient
     private Double averageRating;
 

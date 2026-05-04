@@ -1,7 +1,6 @@
 package com.ecommerce.repository;
 
 import com.ecommerce.model.Users.Cart.PaymentCard;
-import com.ecommerce.model.Users.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

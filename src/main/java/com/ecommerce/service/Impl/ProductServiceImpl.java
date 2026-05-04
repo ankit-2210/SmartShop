@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -57,6 +59,37 @@ public class ProductServiceImpl implements ProductService {
         return products;
     }
 
+    @Override
+    public Page<Product> getProductsByColors(List<String> colors, Integer pageNo, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        if (colors == null || colors.isEmpty()) {
+            // If no colors selected, return all active products
+            return productRepository.findByIsActiveTrue(pageable);
+        }
+        else {
+            // Filter products where any of the product's colors match the selected colors
+            return productRepository.findByColorNames(colors, pageable);
+        }
+    }
+
+    @Override
+    public Page<Product> getProductsByCategorySubcategoryAndColors(String category, String subcategory, List<String> colors, Integer pageNo, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        // Combine filters using repository or CriteriaBuilder
+        return productRepository.findByCategorySubcategoryAndColors(category, subcategory, colors, pageable);
+    }
+
+    @Override
+    public Page<Product> getProductsByPriceRange(Double minPrice, Double maxPrice, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return productRepository.findByPriceRange(minPrice, maxPrice, pageable);
+    }
+
+    @Override
+    public Page<Product> getProductsByFilters(String category, String subcategory, List<String> colors, Double minPrice, Double maxPrice, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return productRepository.findByFilters(category != null ? category : "", subcategory != null ? subcategory : "", (colors != null && !colors.isEmpty()) ? colors : null, minPrice, maxPrice, pageable);
+    }
 
     @Override
     public void deactivateProductsByCategory(String categoryName, String subcategoryName, Integer pageNo, Integer pagesize) {

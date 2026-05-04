@@ -1,6 +1,6 @@
 package com.ecommerce.model.Users.Cart;
 
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

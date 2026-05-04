@@ -33,5 +33,8 @@ public class OrderItem {
     @Transient
     private boolean reviewed;
 
+    public String getTitle() {
+        return product != null ? product.getTitle() : "";
+    }
 
 }

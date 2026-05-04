@@ -1,7 +1,7 @@
 package com.ecommerce.model.Users.Wishlist;
 
 import com.ecommerce.model.Users.Products.Product;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import jakarta.persistence.*;
 import lombok.*;
 

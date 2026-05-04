@@ -24,9 +24,7 @@
 
         <!-- Account Section -->
         <section id="account" class="account section">
-
             <div class="container">
-
                 <!-- Mobile Menu Toggle -->
                 <div class="mobile-menu d-lg-none mb-4">
                     <button class="mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#profileMenu">
@@ -69,14 +67,20 @@
                                                     <li><a class="dropdown-item" th:href="@{'/user/myorders'(status='Cancelled')}">Cancelled</a></li>
                                                 </ul>
                                             </div>
-
                                         </div>
                                     </div>
 
                                     <div class="orders-grid">
+                                        <!-- Check if orders exist -->
+                                        <div th:if="${#lists.isEmpty(orders)}" class="no-orders-message text-center p-5"
+                                             style="background-color: #cff4fc; color: #055160; border-radius: 8px; border: 1px solid #b6effb;">
+                                            <i class="bi bi-info-circle" style="font-size: 2rem;"></i>
+                                            <h4 class="mt-2">You have not placed any orders yet!</h4>
+                                            <p class="text-muted">Browse our products and start shopping to see your orders here.</p>
+                                        </div>
 
                                         <!-- Order Card 1 -->
-                                        <div class="order-card" th:each="order, iterStat : ${orders}">
+                                        <div class="order-card" th:each="order, iterStat : ${orders}" th:unless="${#lists.isEmpty(orders)}">
                                             <div class="order-header">
                                                 <div class="order-id">
                                                     <span class="label">Order ID:</span>
@@ -158,7 +162,7 @@
                                                                         <input type="hidden" name="productId" th:value="${item.product.id}"/>
                                                                         <input type="hidden" name="orderId" th:value="${order.id}"/>
 
-                                                          R              <!-- Rating -->
+                                                                      <!-- Rating -->
                                                                         <div class="mb-2">
                                                                             <label class="form-label">Rating</label>
                                                                             <select class="form-select" name="rating" required>
@@ -333,7 +337,7 @@
                                     </div>
 
                                     <!-- Pagination -->
-                                    <div class="pagination-wrapper d-flex justify-content-center my-4">
+                                    <div class="pagination-wrapper d-flex justify-content-center my-4" th:if="${!#lists.isEmpty(orders)}">
                                         <!-- Previous Button -->
                                         <button type="button"
                                                 class="btn-prev"

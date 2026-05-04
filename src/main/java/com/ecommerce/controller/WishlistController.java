@@ -1,7 +1,7 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.model.Users.Wishlist.Wishlist;
-import com.ecommerce.model.Users.Wishlist.WishlistRequest;
+import com.ecommerce.payload.request.Users.WishlistRequest;
 import com.ecommerce.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

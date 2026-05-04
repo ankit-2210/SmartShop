@@ -57,9 +57,19 @@
 
                                     </div>
 
+                                    <!-- If wishlist is empty -->
+                                    <div th:if="${#lists.isEmpty(wishlistItems)}" class="no-wishlist-message text-center p-5"
+                                         style="background-color: #fff3cd; color: #856404; border-radius: 8px; border: 1px solid #ffeeba;">
+                                        <i class="bi bi-info-circle" style="font-size: 2rem;"></i>
+                                        <h4 class="mt-2">Your wishlist is empty!</h4>
+                                        <p class="text-muted">Browse products and add them to your wishlist to see them here.</p>
+                                        <a th:href="@{/products}" class="btn btn-primary mt-3">Shop Now</a>
+                                    </div>
+
                                     <div class="wishlist-grid">
+
                                         <!-- Wishlist Item 1 -->
-                                        <div class="wishlist-card" th:each="wishlist: ${wishlistItems}">
+                                        <div class="wishlist-card" th:each="wishlist: ${wishlistItems}" th:unless="${#lists.isEmpty(wishlistItems)}">
                                             <div class="wishlist-image">
                                                 <img th:src="@{'/img/product_img/' + ${wishlist.product.image}}" th:alt="${wishlist.product.title}" />
                                                 <button class="btn-remove" type="button" aria-label="Remove from wishlist" th:attr="data-productId=${wishlist.product.id}, data-userId=${User?.id}" onclick="removeFromWishlist(this)">

@@ -1,7 +1,6 @@
-package com.ecommerce.model.Orders;
+package com.ecommerce.payload.response.Orders;
 
 import com.ecommerce.model.Orders.OrderAddress;
-import com.ecommerce.model.Orders.OrderItemResponse;
 import lombok.*;
 import java.util.*;
 

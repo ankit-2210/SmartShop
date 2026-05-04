@@ -3,7 +3,7 @@ package com.ecommerce.model.Reviews;
 
 import com.ecommerce.model.Orders.Order;
 import com.ecommerce.model.Users.Products.Product;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;

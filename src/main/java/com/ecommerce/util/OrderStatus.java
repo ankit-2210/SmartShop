@@ -3,8 +3,8 @@ package com.ecommerce.util;
 public enum OrderStatus {
 
     IN_PROGRESS(1, "In Progress", "Your order has been received and is being processed", "bi-gear"),
-    ORDER_RECEIVED(2, "Received", "Your order has been confirmed by our system", "bi-check2-circle"),
-    PRODUCT_PACKED(3, "Packed", "Your items have been packed and are ready for shipment", "bi-box-seam"),
+    RECEIVED(2, "Received", "Your order has been confirmed by our system", "bi-check2-circle"),
+    PACKED(3, "Packed", "Your items have been packed and are ready for shipment", "bi-box-seam"),
     OUT_FOR_DELIVERY(4, "Out for Delivery", "Your package is on its way", "bi-truck"),
     DELIVERED(5, "Delivered", "Your order has been delivered successfully", "bi-house-door"),
     CANCELLED(6, "Cancelled", "Your order has been cancelled", "bi-x-circle"),

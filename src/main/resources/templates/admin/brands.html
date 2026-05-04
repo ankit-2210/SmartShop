@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="base::layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Manage Brands</title>
+</head>
+<body>
+
+<section>
+    <div class="container-fluid p-5 mt-5">
+        <div class="row">
+
+            <!-- LEFT: Add Brand -->
+            <div class="col-md-4">
+                <div class="card card-sh p-4">
+                    <div class="card-header text-center mb-3">
+                        <h3>Add New Brand</h3>
+                    </div>
+
+                    <form id="brandForm" method="post" enctype="multipart/form-data">
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select id="categorySelect" name="categoryId" class="form-select" required onchange="updateSubcategoriesBrands(this)">
+                                <option value="" disabled selected>Select category</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.categoryName}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Subcategory -->
+                        <div class="mb-3">
+                            <label class="form-label">Subcategory</label>
+                            <select id="subcategorySelect" name="subcategoryId" class="form-select" required>
+                                <option value="" disabled selected>Select subcategory</option>
+                            </select>
+                        </div>
+
+                        <!-- Brand Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Brand Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter brand name" required/>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Enter brand description" required></textarea>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" value="true" checked>
+                                <label class="form-check-label">Active</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="isActive" value="false">
+                                <label class="form-check-label">Inactive</label>
+                            </div>
+                        </div>
+
+                        <!-- Brand Logo -->
+                        <div class="mb-3">
+                            <label class="form-label">Brand Logo</label>
+                            <input type="file" name="file" class="form-control" accept="image/*"/>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="button" class="btn btn-success px-4" onclick="addBrand()">Add Brand</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT: Brand List -->
+            <div class="col-md-8">
+                <div class="card card-sh p-4">
+                    <div class="card-header text-center">
+                        <h3>Brand Details</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Subcategory</th>
+                                <th>Status</th>
+                                <th>Logo</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="brand, iterStat : ${brands}">
+                                <td class="text-center" th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${brand.name}"></td>
+                                <td th:text="${brand.subCategory.category.categoryName}"></td>
+                                <td th:text="${brand.subCategory.subcategoryName}"></td>
+                                <td>
+                                    <span th:text="${brand.isActive} ? 'Active' : 'Inactive'"
+                                          th:classappend="${brand.isActive} ? 'badge bg-success' : 'badge bg-danger'"></span>
+                                </td>
+                                <td>
+                                    <img th:if="${brand.logo != null}" th:src="@{'/img/brand_img/' + ${brand.logo}}" width="50" height="50" class="rounded-circle"/>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm"
+                                            th:attr="data-bs-target='#editBrandModal__' + ${brand.id}"
+                                            data-bs-toggle="modal">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+
+                                    <button class="btn btn-danger btn-sm"
+                                            th:onclick="'deleteBrand(' + ${brand.id} + ')'">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </td>
+
+                                <!-- Edit Modal -->
+                                <div class="modal fade" th:id="'editBrandModal__' + ${brand.id}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-warning text-dark">
+                                                <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Brand</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" enctype="multipart/form-data">
+                                                    <input type="hidden" name="brandId" th:value="${brand.id}"/>
+                                                    <input type="hidden" name="subcategoryId" th:value="${brand.subCategory.id}"/>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Brand Name</label>
+                                                        <input type="text" class="form-control" name="name" th:value="${brand.name}" required/>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Description</label>
+                                                        <textarea class="form-control" name="description" rows="3" th:text="${brand.description}" required></textarea>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Status</label>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="isActive" th:value="true" th:checked="${brand.isActive}"/>
+                                                            <label class="form-check-label">Active</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="isActive" th:value="false" th:checked="${!brand.isActive}"/>
+                                                            <label class="form-check-label">Inactive</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Logo</label>
+                                                        <input type="file" name="file" class="form-control" accept="image/*"/>
+                                                        <div class="mt-2">
+                                                            <img th:if="${brand.logo != null}" th:src="@{'/img/brand_img/' + ${brand.logo}}" width="100" height="100" class="rounded-circle"/>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center">
+                                                        <button type="button" class="btn btn-warning px-4"
+                                                                th:onclick="'updateBrand(' + ${brand.id} + ')'">Update</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Modal -->
+
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div th:if="${#lists.isEmpty(brands)}" class="text-center my-5">
+                            <div class="alert alert-info py-3">
+                                <i class="fa-solid fa-info-circle me-2"></i>No brands available
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-package com.ecommerce.model.Reviews;
+package com.ecommerce.payload.request.Reviews;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

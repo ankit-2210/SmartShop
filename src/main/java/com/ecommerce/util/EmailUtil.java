@@ -19,12 +19,11 @@ public class EmailUtil {
     private JavaMailSender mailSender;
 
     public Boolean sendMail(String url, String receiptEmail) throws UnsupportedEncodingException, MessagingException {
-
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message);
 
-            helper.setFrom("aki.code22@gmail.com", "Shooping Cart");
+            helper.setFrom("aki.code22@gmail.com", "Shopping Cart");
             helper.setTo(receiptEmail);
 
             String content = "<p>Hello, </p>" + "<p> You have requested to reset your password.</p>"
@@ -55,7 +54,8 @@ public class EmailUtil {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
             helper.setFrom("aki.code22@gmail.com", "Shopping Cart");
-            helper.setTo(order.getOrderAddress().getEmail());
+//            helper.setTo(order.getOrderAddress().getEmail());
+            helper.setTo("aki.code22@gmail.com");
 
             String subject;
             String introMessage;
@@ -144,14 +144,5 @@ public class EmailUtil {
             return false;
         }
     }
-
-
-
-
-
-
-
-
-
 
 }

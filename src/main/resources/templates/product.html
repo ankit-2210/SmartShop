@@ -44,7 +44,8 @@
                                          aria-expanded="false"
                                          th:attrappend="aria-controls='subcategories-' + ${iterStat.index}">
 
-                                        <a href="javascript:void(0)" class="category-link" th:text="${cat.categoryName}"></a>
+                                        <a href="javascript:void(0)" class="category-link"
+                                           th:text="${cat.categoryName}"></a>
                                         <span class="category-toggle">
                                             <i class="bi bi-chevron-down"></i>
                                             <i class="bi bi-chevron-up"></i>
@@ -52,10 +53,13 @@
                                     </div>
 
                                     <!-- Collapse target -->
-                                    <ul th:id="'subcategories-' + ${iterStat.index}" class="subcategory-list list-unstyled collapse ps-3 mt-2">
+                                    <ul th:id="'subcategories-' + ${iterStat.index}"
+                                        class="subcategory-list list-unstyled collapse ps-3 mt-2">
                                         <li th:each="sub : ${cat.subCategories}">
-                                            <a th:href="@{/products(category=${cat.categoryName}, subcategory=${sub.subcategoryName})}"
-                                               class="subcategory-link" th:text="${sub.subcategoryName}">
+                                            <a href="javascript:void(0)"
+                                               class="subcategory-link"
+                                               th:attr="data-category=${cat.categoryName}, data-subcategory=${sub.subcategoryName}"
+                                               th:text="${sub.subcategoryName}">
                                             </a>
                                         </li>
                                     </ul>
@@ -64,12 +68,9 @@
                         </div><!--/Product Categories Widget -->
 
 
-
                         <!-- Pricing Range Widget -->
                         <div class="pricing-range-widget widget-item">
-
                             <h3 class="widget-title">Price Range</h3>
-
                             <div class="price-range-container">
                                 <div class="current-range mb-3">
                                     <span class="min-price">$0</span>
@@ -79,8 +80,8 @@
                                 <div class="range-slider">
                                     <div class="slider-track"></div>
                                     <div class="slider-progress"></div>
-                                    <input type="range" class="min-range" min="0" max="1000" value="0" step="10">
-                                    <input type="range" class="max-range" min="0" max="1000" value="500" step="10">
+                                    <input type="range" class="min-range" min="0" max="2000" value="0" step="10">
+                                    <input type="range" class="max-range" min="0" max="2000" value="500" step="10">
                                 </div>
 
                                 <div class="price-inputs mt-3">
@@ -88,20 +89,22 @@
                                         <div class="col-6">
                                             <div class="input-group input-group-sm">
                                                 <span class="input-group-text">$</span>
-                                                <input type="number" class="form-control min-price-input" placeholder="Min" min="0" max="1000" value="0" step="10">
+                                                <input type="number" class="form-control min-price-input"
+                                                       placeholder="Min" min="0" max="1000" value="0" step="10">
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="input-group input-group-sm">
                                                 <span class="input-group-text">$</span>
-                                                <input type="number" class="form-control max-price-input" placeholder="Max" min="0" max="1000" value="500" step="10">
+                                                <input type="number" class="form-control max-price-input"
+                                                       placeholder="Max" min="0" max="2000" value="500" step="10">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="filter-actions mt-3">
-                                    <button type="button" class="btn btn-sm btn-primary w-100">Apply Filter</button>
+                                    <button type="button" class="btn btn-sm btn-primary w-100" id="applyPriceFilter">Apply Filter</button>
                                 </div>
                             </div>
 
@@ -114,21 +117,37 @@
                         <div class="color-filter-widget widget-item">
                             <h3 class="widget-title">Filter by Color</h3>
                             <div class="color-filter-content">
-                                <div class="color-options">
-                                    <div class="form-check color-option" th:each="clr : ${colors}">
-                                        <input class="form-check-input" type="checkbox"
-                                               th:value="${clr.name()}"
-                                               th:id="'color-' + ${clr.name().toLowerCase()}">
-                                        <label class="form-check-label" th:for="'color-' + ${clr.name().toLowerCase()}">
-                                            <span class="color-swatch" th:style="'background-color:' + ${clr.hexCode}" th:title="${clr.name()}"></span>
-                                        </label>
+                                <form id="colorFilterForm">
+                                    <div class="color-options">
+                                        <div class="form-check color-option" th:each="clr : ${colors}">
+                                            <input class="form-check-input" type="checkbox"
+                                                   th:value="${clr.name()}"
+                                                   name="colors"
+                                                   th:id="'color-' + ${clr.name().toLowerCase()}"
+                                                   />
+                                            <label class="form-check-label"
+                                                   th:for="'color-' + ${clr.name().toLowerCase()}">
+                                                <span class="color-swatch"
+                                                      th:style="'background-color:' + ${clr.hexCode}"
+                                                      th:title="${clr.name()}"></span>
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="filter-actions mt-3">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Clear All</button>
-                                    <button type="button" class="btn btn-sm btn-primary">Apply Filter</button>
-                                </div>
+                                    <div class="filter-actions mt-3">
+                                        <!-- Clear All button -->
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                onclick="clearColorsFilter()">
+                                            Clear All
+                                        </button>
+
+                                        <!-- Apply Filter button -->
+                                        <button type="button" id="applyColorFilter"
+                                                class="btn btn-sm btn-primary">
+                                            Apply Filter
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div><!--/Color Filter Widget -->
 
@@ -137,7 +156,6 @@
                         <div class="brand-filter-widget widget-item">
 
                             <h3 class="widget-title">Filter by Brand</h3>
-
                             <div class="brand-filter-content">
                                 <div class="brand-search">
                                     <input type="text" class="form-control" placeholder="Search brands...">
@@ -145,82 +163,12 @@
                                 </div>
 
                                 <div class="brand-list">
-                                    <div class="brand-item">
+                                    <div class="brand-item" th:each="brand : ${brands}">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand1">
-                                            <label class="form-check-label" for="brand1">
-                                                Nike
-                                                <span class="brand-count">(24)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand2">
-                                            <label class="form-check-label" for="brand2">
-                                                Adidas
-                                                <span class="brand-count">(18)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand3">
-                                            <label class="form-check-label" for="brand3">
-                                                Puma
-                                                <span class="brand-count">(12)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand4">
-                                            <label class="form-check-label" for="brand4">
-                                                Reebok
-                                                <span class="brand-count">(9)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand5">
-                                            <label class="form-check-label" for="brand5">
-                                                Under Armour
-                                                <span class="brand-count">(7)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand6">
-                                            <label class="form-check-label" for="brand6">
-                                                New Balance
-                                                <span class="brand-count">(6)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand7">
-                                            <label class="form-check-label" for="brand7">
-                                                Converse
-                                                <span class="brand-count">(5)</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="brand-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="brand8">
-                                            <label class="form-check-label" for="brand8">
-                                                Vans
-                                                <span class="brand-count">(4)</span>
+                                            <input class="form-check-input" type="checkbox" th:id="'brand-' + ${brand.id}">
+                                            <label class="form-check-label" th:for="'brand-' + ${brand.id}">
+                                                <span th:text="${brand.name}">Brand Name</span>
+                                                <span class="brand-count" th:text="'(' + ${brand.productCount != null ? brand.productCount : 0} + ')'">(0)</span>
                                             </label>
                                         </div>
                                     </div>
@@ -233,7 +181,6 @@
                             </div>
 
                         </div><!--/Brand Filter Widget -->
-
                     </div>
 
                 </div>
@@ -242,28 +189,26 @@
 
                     <!-- Category Header Section -->
                     <section id="category-header" class="category-header section" th:if="${!#lists.isEmpty(Products)}">
-
                         <div class="container">
-
                             <!-- Filter and Sort Options -->
-                            <div class="filter-container mb-4" >
+                            <div class="filter-container mb-4">
                                 <div class="row g-3">
 
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <form action="/search" method="get">
-                                        <div class="filter-item search-form">
-                                            <label for="productSearch" class="form-label">Search Products</label>
-                                            <div class="input-group">
-                                                <input type="text" name="keyword"
-                                                       class="form-control"
-                                                       id="productSearch"
-                                                       placeholder="Search for products..."
-                                                       th:value="${keyword}" />
-                                                <button class="btn search-btn" type="submit">
-                                                    <i class="bi bi-search"></i>
-                                                </button>
+                                            <div class="filter-item search-form">
+                                                <label for="productSearch" class="form-label">Search Products</label>
+                                                <div class="input-group">
+                                                    <input type="text" name="keyword"
+                                                           class="form-control"
+                                                           id="productSearch"
+                                                           placeholder="Search for products..."
+                                                           th:value="${keyword}"/>
+                                                    <button class="btn search-btn" type="submit">
+                                                        <i class="bi bi-search"></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
                                         </form>
 
                                     </div>
@@ -300,15 +245,18 @@
                                             <label class="form-label">View</label>
                                             <div class="d-flex align-items-center">
                                                 <div class="view-options me-3">
-                                                    <button type="button" class="btn view-btn active" data-view="grid" aria-label="Grid view">
+                                                    <button type="button" class="btn view-btn active" data-view="grid"
+                                                            aria-label="Grid view">
                                                         <i class="bi bi-grid-3x3-gap-fill"></i>
                                                     </button>
-                                                    <button type="button" class="btn view-btn" data-view="list" aria-label="List view">
+                                                    <button type="button" class="btn view-btn" data-view="list"
+                                                            aria-label="List view">
                                                         <i class="bi bi-list-ul"></i>
                                                     </button>
                                                 </div>
                                                 <div class="items-per-page">
-                                                    <select class="form-select" id="itemsPerPage" aria-label="Items per page">
+                                                    <select class="form-select" id="itemsPerPage"
+                                                            aria-label="Items per page">
                                                         <option value="12">12 per page</option>
                                                         <option value="24">24 per page</option>
                                                         <option value="48">48 per page</option>
@@ -320,6 +268,24 @@
                                     </div>
                                 </div>
 
+                                <div class="row mt-3">
+                                    <div class="col-12" >
+                                        <div class="active-filters">
+                                            <span class="active-filter-label">Active Filters:</span>
+                                            <div class="filter-tags">
+<!--                                                <span class="filter-tag">-->
+<!--                                                    Electronics <button class="filter-remove"><i class="bi bi-x"></i></button>-->
+<!--                                                </span>-->
+<!--                                                <span class="filter-tag">-->
+<!--                                                    $50 to $100 <button class="filter-remove"><i class="bi bi-x"></i></button>-->
+<!--                                                </span>-->
+<!--                                                <button class="btn btn-sm tbn-link clear-all-btn" onclick="clearAllFilters()">Clear All</button>-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
                         </div>
 
@@ -327,7 +293,7 @@
 
                     <!-- Category Product List Section -->
                     <section id="category-product-list" class="category-product-list section">
-                        <div class="container" >
+                        <div class="container" id="productList">
                             <div class="row g-4">
 
                                 <!-- Show message if no products -->
@@ -344,56 +310,63 @@
 
                                 <!-- Product 1 -->
                                 <div th:each="p : ${Products}" class="col-6 col-xl-4">
-                                    <div class="product-card" >
+                                    <div class="product-card">
                                         <div class="product-image">
-                                            <img th:src="@{'/img/product_img/'+${p.image}}" class="main-image img-fluid" alt="Product" />
-                                            <img th:src="@{'/img/product_img/product-f-2.webp'}" class="hover-image img-fluid" alt="Product Variant" />
+                                            <img th:src="@{'/img/product_img/'+${p.image}}" class="main-image img-fluid"
+                                                 alt="Product"/>
+                                            <img th:src="@{'/img/product_img/product-f-2.webp'}"
+                                                 class="hover-image img-fluid" alt="Product Variant"/>
                                             <div class="product-overlay">
                                                 <div class="product-actions">
-                                                    <button th:onclick="'window.location.href=\'/product/' + ${p.id} + '\''" type="button" class="action-btn" data-bs-toggle="tooltip" title="Quick View">
+                                                    <button th:onclick="'window.location.href=\'/product/' + ${p.id} + '\''"
+                                                            type="button" class="action-btn" data-bs-toggle="tooltip"
+                                                            title="Quick View">
 
                                                         <i class="bi bi-eye"></i>
                                                     </button>
-                                                    <button type="button" class="action-btn" data-bs-toggle="tooltip" title="Add to Cart"
+                                                    <button type="button" class="action-btn" data-bs-toggle="tooltip"
+                                                            title="Add to Cart"
                                                             th:attr="data-stock=${p.stock}, data-loggedIn=${User != null}, data-productId=${p.id}, data-userId=${User?.id}"
                                                             onclick="handleAddToCart(this)">
                                                         <i class="bi bi-cart-plus"></i></a>
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div class="product-badge sale" th:text="${p.discount}+'%'" th:if="${p.discount>0}"></div>
+                                            <div class="product-badge sale" th:text="${p.discount}+'%'"
+                                                 th:if="${p.discount>0}"></div>
                                         </div>
                                         <div class="product-details">
                                             <div class="product-category" th:text="${p.name}"></div>
-                                            <h4 class="product-title"><a href="product-details.html" th:text="${p.title}">Tempor Incididunt</a></h4>
+                                            <h4 class="product-title"><a href="product-details.html"
+                                                                         th:text="${p.title}"></a></h4>
 
                                             <!-- Price -->
                                             <div class="product-price mb-2">
                                                 <span class="text-decoration-line-through text-muted me-2"
                                                       th:text="'₹ ' + ${p.price}"></span>
                                                 <span class="fw-bold text-dark fs-5"
-                                                      th:if="${p.discount > 0}" th:text="'₹ '+${p.discountPrice}"></span>
+                                                      th:if="${p.discount > 0}"
+                                                      th:text="'₹ '+${p.discountPrice}"></span>
                                             </div>
 
                                             <!-- Rating -->
                                             <div class="product-rating mb-2">
                                                 <i class="bi bi-star-fill text-warning"></i>
-                                                <span class="fw-bold" >4.0</span>
+                                                <span class="fw-bold">4.0</span>
                                                 <span class="text-muted small">(42)</span>
                                             </div>
 
                                             <!-- Color Swatches -->
                                             <div class="color-swatches mt-2">
-                                                <span th:each="clr : ${p.colors}" class="swatch rounded-circle me-2 border"
-                                                        th:style="'background-color:' + ${clr.hexCode} + '; width:20px; height:20px; display:inline-block;'">
+                                                <span th:each="clr : ${p.colors}"
+                                                      class="swatch rounded-circle me-2 border"
+                                                      th:style="'background-color:' + ${clr.hexCode} + '; width:20px; height:20px; display:inline-block;'">
                                                 </span>
                                             </div>
                                         </div>
 
                                     </div>
                                 </div>
-
-
 
 
                             </div>
@@ -403,7 +376,8 @@
                     </section><!-- /Category Product List Section -->
 
                     <!-- Category Pagination Section -->
-                    <section id="category-pagination" class="category-pagination section" th:if="${!#lists.isEmpty(Products)}">
+                    <section id="category-pagination" class="category-pagination section"
+                             th:if="${!#lists.isEmpty(Products)}">
 
                         <div class="container">
                             <nav class="d-flex justify-content-center" aria-label="Page navigation">
@@ -413,7 +387,8 @@
                                     </li>
                                     <li th:each="i : ${#numbers.sequence(1, totalPages)}"
                                         class="page-item" th:classappend="${pageNo+1==i}?'active':''">
-                                        <a class="page-link" th:href="@{'/products?pageNo='+${i-1}}"><span th:text="${i}"></span></a></li>
+                                        <a class="page-link" th:href="@{'/products?pageNo='+${i-1}}"><span
+                                                th:text="${i}"></span></a></li>
                                     <li class="page-item" th:classappend="${isLast}?'disabled':''">
                                         <a class="page-link" th:href="@{'/products?pageNo='+${pageNo+1}}">Next</a>
                                     </li>
@@ -425,16 +400,11 @@
                     </section><!-- /Category Pagination Section -->
 
 
-
-
-
-
                 </div>
             </div>
 
         </div>
     </main>
-
 
 
 </section>

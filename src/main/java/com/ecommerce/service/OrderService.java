@@ -1,7 +1,7 @@
 package com.ecommerce.service;
 
 import com.ecommerce.model.Orders.Order;
-import com.ecommerce.model.Orders.OrderRequest;
+import com.ecommerce.payload.request.Orders.OrderRequest;
 import org.springframework.data.domain.Page;
 
 public interface OrderService {

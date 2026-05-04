@@ -1,4 +1,4 @@
-package com.ecommerce.model.Users.Wishlist;
+package com.ecommerce.payload.request.Users;
 
 import lombok.*;
 

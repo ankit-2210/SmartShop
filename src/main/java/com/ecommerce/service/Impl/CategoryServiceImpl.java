@@ -1,7 +1,10 @@
 package com.ecommerce.service.Impl;
 
+import com.ecommerce.model.Users.Products.Brand;
+import com.ecommerce.payload.dto.BrandDTO;
 import com.ecommerce.model.Users.Products.Category;
 import com.ecommerce.model.Users.Products.SubCategory;
+import com.ecommerce.repository.BrandRepository;
 import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.repository.SubCategoryRepository;
 import com.ecommerce.service.CategoryService;
@@ -24,6 +27,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private SubCategoryRepository subCategoryRepository;
 
+    @Autowired
+    private BrandRepository brandRepository;
+
     @Override
     public Category saveCategory(Category category){
 
@@ -43,20 +49,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<SubCategory> getAllSubCategoryPagination(int pageNo, int pageSize){
-        Pageable pageable= PageRequest.of(pageNo, pageSize);
-        return subCategoryRepository.findAll(pageable);
-    }
-
-
-    @Override
     public Boolean existCategory(String categoryName){
         return categoryRepository.existsByCategoryName(categoryName);
-    }
-
-    @Override
-    public boolean existsSubcategory(Category categoryName, String subcategoryName) {
-        return subCategoryRepository.existsBySubcategoryNameAndCategory(subcategoryName, categoryName);
     }
 
     @Override
@@ -98,9 +92,21 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
+    // SubCategories
     @Override
     public SubCategory getSubcategoryById(Long subcategoryId) {
         return subCategoryRepository.findById(subcategoryId).orElse(null);
+    }
+
+    @Override
+    public boolean existsSubcategory(Category categoryName, String subcategoryName) {
+        return subCategoryRepository.existsBySubcategoryNameAndCategory(subcategoryName, categoryName);
+    }
+
+    @Override
+    public Page<SubCategory> getAllSubCategoryPagination(int pageNo, int pageSize){
+        Pageable pageable= PageRequest.of(pageNo, pageSize);
+        return subCategoryRepository.findAll(pageable);
     }
 
 
@@ -118,6 +124,40 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return false;
     }
+
+
+
+    // Brands
+    @Override
+    public Brand saveBrand(Brand brand) {
+        return brandRepository.save(brand);
+    }
+
+    @Override
+    public List<Brand> getBrandsBySubCategory(SubCategory subCategory) {
+        return brandRepository.findBySubCategory(subCategory);
+    }
+
+    @Override
+    public List<Brand> getBrandsBySubCategoryId(Long subCategoryId) {
+        return brandRepository.findBySubCategory_Id(subCategoryId);
+    }
+
+    @Override
+    public List<BrandDTO> getAllBrands() {
+        return brandRepository.findAll()
+                .stream()
+                .filter(Brand::getIsActive) // only active brands
+                .map(brand -> new BrandDTO(brand.getId(), brand.getName(), brand.getProducts().stream().count())) // no product count
+                .toList();
+    }
+
+    @Override
+    public void deleteBrand(Long id) {
+        brandRepository.deleteById(id);
+    }
+
+
 
 
 }

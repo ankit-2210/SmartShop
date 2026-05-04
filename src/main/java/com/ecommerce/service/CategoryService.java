@@ -1,5 +1,7 @@
 package com.ecommerce.service;
 
+import com.ecommerce.model.Users.Products.Brand;
+import com.ecommerce.payload.dto.BrandDTO;
 import com.ecommerce.model.Users.Products.Category;
 import com.ecommerce.model.Users.Products.SubCategory;
 import org.springframework.data.domain.Page;
@@ -32,5 +34,16 @@ public interface CategoryService {
 
     public Boolean deleteSubCategory(Long id);
 
+
+    // Brands
+    Brand saveBrand(Brand brand);
+
+    List<Brand> getBrandsBySubCategory(SubCategory subCategory);
+
+    public List<Brand> getBrandsBySubCategoryId(Long subCategoryId);
+
+    public List<BrandDTO> getAllBrands();
+
+    void deleteBrand(Long id);
 
 }

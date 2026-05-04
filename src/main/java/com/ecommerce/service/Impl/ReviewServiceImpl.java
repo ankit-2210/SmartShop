@@ -3,7 +3,7 @@ package com.ecommerce.service.Impl;
 import com.ecommerce.model.Orders.Order;
 import com.ecommerce.model.Users.Products.Product;
 import com.ecommerce.model.Reviews.Review;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.repository.OrderRepository;
 import com.ecommerce.repository.ProductRepository;
 import com.ecommerce.repository.ReviewRepository;

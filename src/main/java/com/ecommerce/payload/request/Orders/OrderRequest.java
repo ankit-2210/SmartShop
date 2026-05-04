@@ -1,4 +1,4 @@
-package com.ecommerce.model.Orders;
+package com.ecommerce.payload.request.Orders;
 
 import lombok.Data;
 import lombok.ToString;

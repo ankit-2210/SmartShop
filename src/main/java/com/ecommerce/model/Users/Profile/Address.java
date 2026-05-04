@@ -1,4 +1,4 @@
-package com.ecommerce.model.Users;
+package com.ecommerce.model.Users.Profile;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,20 +15,13 @@ public class Address {
     private Long id;
 
     private String title;   // Home / Office etc.
-
     private String fullName;
-
     private String phone;
-
     private String street;
-
-    private String city;
-
-    private String state;
-
-    private String zip;
-
     private String country;
+    private String city;
+    private String state;
+    private String zip;
 
     private Boolean isDefault = false;
 

@@ -14,14 +14,6 @@
         <div class="card p-4">
             <h3 class="mb-4 text-center mx-auto">Add New Product</h3>
 
-            <div th:if="${session.productMessage}" class="container">
-                <div th:classappend="' text-' + ${session.productMessage.type}"
-                     class="alert text-center" role="alert">
-                    <p th:text="${session.productMessage.content}"></p>
-                </div>
-                <th:block th:text="${@sessionHelperImpl.removeSessionAttribute('productMessage')}"></th:block>
-            </div>
-
 
             <!-- Form Binding -->
             <form id="productForm" method="post" enctype="multipart/form-data">
@@ -75,6 +67,15 @@
                         </select>
                         <div class="invalid-feedback">Please select subcategory which comes under category!!</div>
                     </div>
+                </div>
+
+                <!-- Brand -->
+                <div class="mb-3">
+                    <label class="form-label">Brand</label>
+                    <select id="brandSelect" name="brandId" class="form-select" required>
+                        <option value="" disabled selected>Select brand</option>
+                    </select>
+                    <div class="invalid-feedback">Please select a brand!</div>
                 </div>
 
                 <div class="mb-3">

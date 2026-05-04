@@ -30,12 +30,6 @@ $(document).ready(function () {
     });
 });
 
-
-
-
-
-
-
 function getSelectedShipping() {
     let shippingInput = document.querySelector("input[name='shipping']:checked");
     return shippingInput ? shippingInput.id : null;
@@ -44,7 +38,6 @@ function getSelectedShipping() {
 
 function addItemCart(productId, userId, color, size) {
     let shippingMethod = getSelectedShipping();
-
     console.log("Shipping Method:", shippingMethod);
 
     fetch(`/user/cartSummaryAjax?uid=${userId}&pid=${productId}&action=add&shipping=${shippingMethod}&color=${encodeURIComponent(color)}&size=${size}`)
@@ -57,18 +50,16 @@ function addItemCart(productId, userId, color, size) {
                     icon: "success"
                 });
 
-                 // ✅ Update navbar cart count
+                 // Update navbar cart count
                  let cartCountEl = document.getElementById("navbar-cart-count");
                  if(cartCountEl && data.cartCount !== undefined) {
                      cartCountEl.textContent = data.cartCount;
                  }
-
                  console.log(document.getElementById("cart-summary"));
 
-                // ✅ If we are on cart page, update immediately
+                // If we are on cart page, update immediately
                 if(document.getElementById("cart-summary")){
                      updateSummaryUI(data);
-
                       // Directly update DOM with new values
                       if(document.getElementById("cart-subtotal")) {
                            document.getElementById("cart-subtotal").textContent = "₹ " + data.subtotal.toFixed(2);
@@ -86,7 +77,7 @@ function addItemCart(productId, userId, color, size) {
 }
 
 function handleAddToCart(button) {
-        // Read values from data attributes
+    // Read values from data attributes
     const stock = parseInt(button.getAttribute("data-stock"));
     const isLoggedIn = button.getAttribute("data-loggedIn") === "true";
     const productId = button.getAttribute("data-productId");
@@ -94,25 +85,20 @@ function handleAddToCart(button) {
 
     const selectedColorElement = document.getElementById("selected-color");
     let selectedColor=selectedColorElement?selectedColorElement.textContent.trim():null;
-
     console.log(stock, productId, userId, selectedColor);
 
-    // ✅ If no color selected, set default
+    // If no color selected, set default
     if(!selectedColor || selectedColor === ""){
         selectedColor = "Midnight Black";
     }
 
     const sizeDropdown = document.getElementById("sizeDropdown");
     let selectedSize = sizeDropdown ? sizeDropdown.value : "M";
-
     // ✅ If no size selected, set default
     if(!selectedSize || selectedSize === ""){
        selectedSize = "M";
     }
-
-
     console.log(stock, isLoggedIn, productId, userId, "Color:", selectedColor, selectedSize);
-
     if(!isLoggedIn){
         Swal.fire({
             icon: 'warning',
@@ -135,11 +121,10 @@ function handleAddToCart(button) {
             title: 'Out of Stock',
             text: 'Sorry, this product is currently unavailable.',
         });
-
         return;
     }
 
-    // ✅ if everything is fine → call your cart function
+    // if everything is fine → call your cart function
     addItemCart(productId, userId, selectedColor, selectedSize);
 }
 
@@ -209,9 +194,6 @@ function addAllToCart(userId) {
         confirmButtonColor: '#3085d6'
     });
 }
-
-
-
 
 
 
@@ -362,7 +344,6 @@ function updateSummaryUI(data) {
         let freeLabel = document.querySelector("label[for='free']");
         let standardRadio = document.getElementById("standard");
         let expressRadio = document.getElementById("express");
-
         if (subtotal >= 300) {
             if (freeRadio) freeRadio.checked = true;
             if (standardRadio) standardRadio.disabled = true;
@@ -371,7 +352,6 @@ function updateSummaryUI(data) {
             // ✅ apply CSS class instead of changing text
             if (freeLabel)
                 freeLabel.classList.add("applied");
-
             // make sure backend recalculates with free shipping
             const userId = document.querySelector(".cart-item")?.getAttribute("data-userId");
             fetch(`/user/cartSummaryAjax?uid=${userId}&shipping=free`)

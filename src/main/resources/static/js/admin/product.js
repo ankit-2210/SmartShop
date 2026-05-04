@@ -21,6 +21,13 @@ function updateSubcategories(selectElement) {
                    option.text = sub.subcategoryName;
                    subcategorySelect.appendChild(option);
                });
+
+               // Add event listener to load brands when subcategory changes
+               subcategorySelect.onchange = function() {
+               const subcategoryId = this.value;
+                    updateBrands(subcategoryId);
+               };
+
            })
            .catch(err => console.error("Error fetching subcategories:", err));
 
@@ -34,6 +41,34 @@ function updateSubcategories(selectElement) {
 }
 
 
+function updateBrands(subcategoryId) {
+    const brandSelect = document.getElementById("brandSelect");
+    brandSelect.innerHTML = '<option value="" disabled selected>Select brand</option>';
+
+    if(subcategoryId) {
+        fetch(`/admin/brands/${subcategoryId}`)
+            .then(response => response.json())
+            .then(data => {
+                if(data.length === 0) {
+                    let option = document.createElement("option");
+                    option.text = "No brands available";
+                    option.disabled = true;
+                    brandSelect.appendChild(option);
+                }
+                else {
+                    data.forEach(brand => {
+                        let option = document.createElement("option");
+                        option.value = brand.id;
+                        option.text = brand.name;
+                        brandSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(err => console.error("Error fetching brands:", err));
+    }
+}
+
+
 function submitProductForm() {
     const form = document.getElementById("productForm");
 
@@ -42,7 +77,6 @@ function submitProductForm() {
         Swal.fire({ icon: 'error', title: 'Missing Required Fields', text: 'Please fill all required fields.' });
         return;
     }
-
     form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
 
     const formData = new FormData(form);
@@ -77,7 +111,8 @@ function submitProductForm() {
     }
 
     // Debug
-    for (let pair of formData.entries()) console.log(pair[0], pair[1]);
+    for (let pair of formData.entries())
+        console.log(pair[0], pair[1]);
 
     fetch('/admin/saveProduct', { method: 'POST', body: formData })
         .then(res => res.json())
@@ -108,7 +143,7 @@ function updateEditProductForm(productId) {
     // --- Handle Colors ---
     formData.delete('colorNames');
         formData.delete('hexCodes');
-        document.querySelectorAll('#colorsWrapper .form-check-input[type="checkbox"]:checked').forEach(cb => {
+        document.querySelectorAll(`#colorsWrapper_${productId} .form-check-input[type="checkbox"]:checked`).forEach(cb => {
             const hexInput = cb.nextElementSibling;
             formData.append('colorNames', cb.value);
             formData.append('hexCodes', hexInput.value);
@@ -124,14 +159,13 @@ function updateEditProductForm(productId) {
         formData.delete('sizeNames');
         formData.delete('sizeStocks');
 
-        const sizeCheckboxes = form.querySelectorAll('.sizeCheckbox');
-        const sizeInputs = form.querySelectorAll('.sizeStockInput');
+        const sizeContainer = document.querySelector(`#sizeContainer_${productId}`);
+        const sizeCheckboxes = sizeContainer.querySelectorAll('.sizeCheckbox:checked');
 
-        sizeCheckboxes.forEach((cb, idx) => {
-            if(cb.checked) {
-                formData.append('sizeNames', cb.value);
-                formData.append('sizeStocks', sizeInputs[idx].value);
-            }
+        sizeCheckboxes.forEach(cb => {
+            const sizeInput = cb.closest('div').querySelector('.sizeStockInput');
+            formData.append('sizeNames', cb.value);
+            formData.append('sizeStocks', sizeInput.value);
         });
     }
 
@@ -166,7 +200,7 @@ function updateEditProductForm(productId) {
                 timer: 2000,
                 showConfirmButton: false
             }).then(() => {
-//                window.location.href = '/admin/products'; // go back to category list
+                window.location.href = '/admin/products'; // go back to category list
             });
         }
         else {
@@ -230,3 +264,35 @@ function deleteProduct(productId) {
         }
     });
 }
+
+
+function updateSubcategoriesBrands(selectElement) {
+    const categoryId = selectElement.value; // now value must be ID instead of name
+    const subcategorySelect = document.getElementById("subcategorySelect");
+
+    if(categoryId){
+       fetch(`/admin/subcategories/${categoryId}`)
+           .then(response => response.json())
+           .then(data => {
+               data.forEach(sub => {
+                   let option = document.createElement("option");
+                   option.value = sub.id;
+                   option.text = sub.subcategoryName;
+                   subcategorySelect.appendChild(option);
+               });
+           })
+           .catch(err => console.error("Error fetching subcategories:", err));
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+

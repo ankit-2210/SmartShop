@@ -1,6 +1,6 @@
 package com.ecommerce.repository;
 
-import com.ecommerce.model.Users.Address;
+import com.ecommerce.model.Users.Profile.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

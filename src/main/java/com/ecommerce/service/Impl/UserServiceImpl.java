@@ -1,8 +1,8 @@
 package com.ecommerce.service.Impl;
 
-import com.ecommerce.model.Users.Address;
+import com.ecommerce.model.Users.Profile.Address;
 import com.ecommerce.model.Users.Cart.PaymentCard;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.repository.AddressRepository;
 import com.ecommerce.repository.PaymentCardRepository;
 import com.ecommerce.repository.UserRepository;
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         defaultAddress.setCity(user.getCity());
         defaultAddress.setState(user.getState());
         defaultAddress.setZip(user.getPincode());
-        defaultAddress.setCountry("India"); // or user.getCountry() if you add field
+        defaultAddress.setCountry(user.getCountry());
         defaultAddress.setIsDefault(true);
         defaultAddress.setUser(savedUser);
 

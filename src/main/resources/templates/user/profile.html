@@ -85,19 +85,21 @@
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label for="city" class="form-label">City</label>
-                                                <input type="text" class="form-control" id="city" th:field="*{city}" readonly>
+                                                <label for="country" class="form-label">Country</label>
+                                                <input type="text" class="form-control" id="country" name="country" th:field="*{city}" readonly>
                                             </div>
 
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                                 <label for="state" class="form-label">State</label>
-                                                <select id="state" class="form-select" th:field="*{state}">
-                                                    <option value="">Choose...</option>
-                                                    <option th:each="st : ${states}" th:value="${st}" th:text="${st}"></option>
-                                                </select>
+                                                <input type="text" class="form-control" id="state" name="state" th:field="*{state}" readonly>
                                             </div>
 
-                                            <div class="col-md-2">
+                                            <div class="col-md-6">
+                                                <label for="city" class="form-label">City</label>
+                                                <input type="text" class="form-control" id="city" name="city" th:field="*{city}" readonly>
+                                            </div>
+
+                                            <div class="col-md-6">
                                                 <label for="pincode" class="form-label">Zip</label>
                                                 <input type="text" class="form-control" id="pincode" th:field="*{pincode}" readonly>
                                             </div>

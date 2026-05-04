@@ -2,18 +2,18 @@ package com.ecommerce.controller;
 
 import com.ecommerce.helper.Message;
 import com.ecommerce.model.Orders.Order;
-import com.ecommerce.model.Orders.OrderItemResponse;
-import com.ecommerce.model.Orders.OrderRequest;
-import com.ecommerce.model.Orders.OrderResponse;
+import com.ecommerce.payload.response.Orders.OrderItemResponse;
+import com.ecommerce.payload.request.Orders.OrderRequest;
+import com.ecommerce.payload.response.Orders.OrderResponse;
 import com.ecommerce.model.Reviews.Review;
-import com.ecommerce.model.Reviews.ReviewRequest;
-import com.ecommerce.model.Reviews.ReviewUpdateRequest;
-import com.ecommerce.model.Reviews.SingleReview;
-import com.ecommerce.model.Users.Address;
+import com.ecommerce.payload.request.Reviews.ReviewRequest;
+import com.ecommerce.payload.request.Reviews.ReviewUpdateRequest;
+import com.ecommerce.payload.request.Reviews.SingleReview;
+import com.ecommerce.model.Users.Profile.Address;
 import com.ecommerce.model.Users.Cart.Cart;
 import com.ecommerce.model.Users.Cart.PaymentCard;
 import com.ecommerce.model.Users.Products.Category;
-import com.ecommerce.model.Users.User;
+import com.ecommerce.model.Users.Profile.User;
 import com.ecommerce.model.Users.Wishlist.Wishlist;
 import com.ecommerce.repository.*;
 import com.ecommerce.service.*;
@@ -169,7 +169,7 @@ public class UserController {
 
         model.addAttribute("User", user);
         // Always reload states for dropdown
-        model.addAttribute("states", List.of("Delhi", "Mumbai", "Kolkata", "Chennai", "Bangalore", "Hyderabad"));
+//        model.addAttribute("states", List.of("Delhi", "Mumbai", "Kolkata", "Chennai", "Bangalore", "Hyderabad"));
         model.addAttribute("title", "Settings Page");
         model.addAttribute("page", "settings");
 
@@ -214,12 +214,13 @@ public class UserController {
             dbuser.setEmail(user.getEmail());
             dbuser.setMobileNumber(user.getMobileNumber());
             dbuser.setAddress(user.getAddress());
+            dbuser.setCountry(user.getCountry());
             dbuser.setCity(user.getCity());
             dbuser.setState(user.getState());
             dbuser.setPincode(user.getPincode());
             dbuser.setProfileImage(imageName);
-
             userRepository.save(dbuser);
+
             // ✅ Refresh session user
             session.setAttribute("loggedInUser", dbuser);
             // ✅ Add success message
@@ -275,8 +276,8 @@ public class UserController {
             // Define the timeline sequence
             List<OrderStatus> allSteps = List.of(
                     OrderStatus.IN_PROGRESS,
-                    OrderStatus.ORDER_RECEIVED,
-                    OrderStatus.PRODUCT_PACKED,
+                    OrderStatus.RECEIVED,
+                    OrderStatus.PACKED,
                     OrderStatus.OUT_FOR_DELIVERY,
                     OrderStatus.DELIVERED
             );
@@ -660,10 +661,6 @@ public class UserController {
 
 
 
-
-
-
-
     @GetMapping("/cart")
     public String cart(Model model, Principal principal){
 
@@ -818,22 +815,27 @@ public class UserController {
         double tax = 27.0; // Or calculate dynamically
         double total = subtotal+tax+shippingCost;
 
+        Address defaultAddress = user.getAddresses()
+                .stream()
+                .filter(Address::getIsDefault)
+                .findFirst()
+                .orElse(null);
+
         model.addAttribute("carts", carts);
         model.addAttribute("cartCount", cartCount);
         model.addAttribute("subtotal", subtotal);
         model.addAttribute("shippingCost", shippingCost);
         model.addAttribute("totalOrderPrice", total);
+        model.addAttribute("defaultAddress", defaultAddress);
 
         return "/user/checkout";
     }
-
 
     // creating order for payment
     @PostMapping("/create_order")
     @ResponseBody
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request, Principal principal) throws Exception {
         System.out.println(request);
-
         String email = principal.getName();
         User user = userService.getUserByEmail(email);
 
@@ -841,7 +843,6 @@ public class UserController {
         int amountInPaise = (int) Math.round(amountInRupees * 100);
 
         RazorpayClient client = new RazorpayClient("rzp_test_YfFqvXPL8JPBdJ", "BvhNZhnzP15Umh3AfSTDp3bm");
-
         JSONObject ob= new JSONObject();
         ob.put("amount", amountInPaise); // Razorpay wants paise
         ob.put("currency", "INR");
@@ -852,10 +853,8 @@ public class UserController {
         System.out.println("Razorpay Order: " + razorpayOrder);
 
         double totalAmount = amountInPaise / 100.0;
-
         // ✅ Save order in DB (ONE order + MANY items + ONE address)
         orderService.saveOrder(user.getId(), request, razorpayOrder, totalAmount);
-
         // ✅ Return Razorpay order response to frontend
         return ResponseEntity.ok(razorpayOrder.toJson().toMap());
     }
@@ -913,7 +912,6 @@ public class UserController {
         response.put("success", true);
         response.put("orderId", order.getOrderId());
         response.put("order", orderResponse);
-
         return ResponseEntity.ok(response);
     }
 
@@ -938,8 +936,8 @@ public class UserController {
 
             steps = List.of(
                     OrderStatus.IN_PROGRESS,
-                    OrderStatus.ORDER_RECEIVED,
-                    OrderStatus.PRODUCT_PACKED,
+                    OrderStatus.RECEIVED,
+                    OrderStatus.PACKED,
                     OrderStatus.OUT_FOR_DELIVERY,
                     OrderStatus.DELIVERED
             );
@@ -956,10 +954,8 @@ public class UserController {
         model.addAttribute("steps", steps);
         model.addAttribute("currentStepIndex", currentStepIndex);
 
-
         return "/user/paymentsuccess";
     }
-
 
 
 }
